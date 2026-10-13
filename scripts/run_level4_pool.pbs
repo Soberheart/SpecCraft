@@ -1,0 +1,126 @@
+#!/bin/bash
+#PBS -N doughnet_l4_pool
+#PBS -l select=1:ngpus=1:ncpus=8:mem=64GB
+#PBS -l walltime=04:00:00
+#PBS -P personal
+#PBS -q normal
+#PBS -j oe
+
+set -euo pipefail
+cd "${PBS_O_WORKDIR:?Submit from the doughnet project root}"
+source /home/users/ntu/mingjie0/venvs/doughnet/bin/activate
+if [[ -n "${LEVEL4_SUBMISSION_MANIFEST:-}" ]]; then
+  : "${LEVEL4_SUBMISSION_MANIFEST_SHA256:?Set to the frozen manifest hash}"
+  cd "$(dirname -- "$LEVEL4_SUBMISSION_MANIFEST")/files"
+  export PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}"
+fi
+export WANDB_MODE=offline
+export PYTHONUNBUFFERED=1
+: "${DYN_ARTIFACTS:?Set to the actual verified Level 3 development scene Dyn artifacts}"
+: "${POOL_CONFIG:=configs/level4/development_pool.json}"
+: "${STAGE:=all}"
+case "$STAGE" in all|prepare|predict|execute|reset) ;; *) echo "Invalid STAGE=$STAGE"; exit 2 ;; esac
+mkdir -p records
+: "${RUN_PARENT:=records}"
+mkdir -p "$RUN_PARENT"
+if [[ -z "${POOL_DIR:-}" ]]; then
+  RUN_DIR=$(mktemp -d "$RUN_PARENT/level4_development_XXXXXX")
+  POOL_DIR="$RUN_DIR/pool"
+else
+  RUN_DIR=$(mktemp -d "$RUN_PARENT/level4_resume_XXXXXX")
+fi
+export RUN_DIR POOL_DIR DYN_ARTIFACTS POOL_CONFIG STAGE
+finish_run() {
+  STATUS=$?
+  trap - EXIT
+  set +e
+  printf '%s\n' "$STATUS" > "$RUN_DIR/exit_code.txt"
+  qstat -f "${PBS_JOBID:-unknown}" > "$RUN_DIR/qstat_end.txt" 2>&1
+  # A separate evidence directory prevents a manifest from hashing itself.
+  # Backup errors are retained separately and never replace the experiment exit.
+  python scripts/archive_level4.py record-run --run-dir "$RUN_DIR" --pool "$POOL_DIR" \
+    --exit-code "$STATUS" --output "${RUN_DIR}_evidence" > "$RUN_DIR/backup_result.txt" 2>&1
+  BACKUP_STATUS=$?
+  printf '%s\n' "$BACKUP_STATUS" > "$RUN_DIR/backup_exit_code.txt"
+  exit "$STATUS"
+}
+trap finish_run EXIT
+if [[ -n "${LEVEL4_SUBMISSION_MANIFEST:-}" ]]; then
+  python - "$RUN_DIR" <<'PY'
+import os, sys
+from pathlib import Path
+from level4.artifacts import read_json, runtime_commit, runtime_environment, sha256, write_json
+out = Path(sys.argv[1])
+manifest = read_json(os.environ['LEVEL4_SUBMISSION_MANIFEST'])
+write_json(out/'runtime_environment_check.json', {
+    'actual_environment': runtime_environment(), 'expected_submit_environment': manifest['environment'],
+    'expected_execution_environment': manifest.get('execution_environment', manifest['environment']),
+    'job_id': os.environ.get('PBS_JOBID'), 'diagnostic_before_guard': True})
+commit = runtime_commit(Path.cwd())  # Verifies frozen environments, source/asset hashes and probe evidence.
+for name, entry in manifest['git_evidence'].items():
+    path = Path(entry['path'])
+    if sha256(path) != entry['sha256']:
+        raise ValueError('Submission Git evidence changed: '+name)
+    with (out/name).open('xb') as stream:
+        stream.write(path.read_bytes())
+if (out/'commit.txt').read_text().strip() != commit:
+    raise ValueError('Submission commit evidence differs')
+print('Verified frozen submit-host Git evidence; compute Git is not required')
+PY
+  # These CPU suites need no Git, model initialization or CUDA. Keep their
+  # actual compute-node results before starting either nominal simulation.
+  for TEST_PATTERN in test_level4_geometry.py test_level4_evaluate.py test_level4_selection.py test_level4_statistics.py test_level4_sealed_runtime.py; do
+    python -m unittest discover -s tests -p "$TEST_PATTERN" -v \
+      > "$RUN_DIR/${TEST_PATTERN%.py}.txt" 2>&1 || { cat "$RUN_DIR/${TEST_PATTERN%.py}.txt"; exit 1; }
+    tail -n 4 "$RUN_DIR/${TEST_PATTERN%.py}.txt"
+  done
+else
+  git rev-parse HEAD > "$RUN_DIR/commit.txt"
+  git diff --binary > "$RUN_DIR/working_tree.patch"
+  git ls-files --others --exclude-standard > "$RUN_DIR/untracked_files.txt"
+fi
+python -u scripts/level4.py snapshot --output "$RUN_DIR/source_snapshot" > "$RUN_DIR/snapshot.json"
+printf '%s\n' "${PBS_JOBID:-unknown}" > "$RUN_DIR/job_id.txt"
+qstat -f "${PBS_JOBID:?}" > "$RUN_DIR/qstat_start.txt" 2>&1 || true
+python -m pip freeze > "$RUN_DIR/environment.txt"
+nvidia-smi > "$RUN_DIR/nvidia-smi.txt"
+printf 'POOL_DIR=%s STAGE=%s\n' "$POOL_DIR" "$STAGE" | tee "$RUN_DIR/run_location.txt"
+
+if [[ "$STAGE" == "all" || "$STAGE" == "predict" || "$STAGE" == "execute" ]]; then
+  : "${RESET_AUDIT:?Run STAGE=reset first and supply its passed reset_audit.json}"
+  python -u scripts/level4.py validate-reset-gate --reset-audit "$RESET_AUDIT" \
+    --config "$POOL_CONFIG" --dyn-artifacts "$DYN_ARTIFACTS" > "$RUN_DIR/reset_gate.json"
+fi
+
+if [[ "$STAGE" == "reset" ]]; then
+  for ATTEMPT in 1 2; do
+    PROBE_POOL="$RUN_DIR/reset_$ATTEMPT/pool"
+    python -u scripts/level4.py prepare --dyn-artifacts "$DYN_ARTIFACTS" \
+      --config "$POOL_CONFIG" --output "$PROBE_POOL" 2>&1 | tee "$RUN_DIR/reset_${ATTEMPT}_prepare.log"
+    python scripts/archive_level4.py check-pool --pool "$PROBE_POOL" --strict \
+      --output "$RUN_DIR/reset_${ATTEMPT}_evidence_preflight.json"
+    python -u scripts/level4.py execute --pool "$PROBE_POOL" --candidate-id candidate_000 \
+      2>&1 | tee "$RUN_DIR/reset_${ATTEMPT}_execute.log"
+  done
+  python -u scripts/level4.py audit-reset --pools "$RUN_DIR/reset_1/pool" "$RUN_DIR/reset_2/pool" \
+    --output "$RUN_DIR/reset_audit.json" 2>&1 | tee "$RUN_DIR/reset_audit.log"
+  echo "LEVEL4_NOMINAL_RESET_PROBE_COMPLETE run=$RUN_DIR"
+  exit 0
+fi
+
+if [[ "$STAGE" == "all" || "$STAGE" == "prepare" ]]; then
+  python -u scripts/level4.py prepare --dyn-artifacts "$DYN_ARTIFACTS" \
+    --config "$POOL_CONFIG" --output "$POOL_DIR" 2>&1 | tee "$RUN_DIR/prepare.log"
+fi
+
+# CPU check of logging/input coverage before starting prediction or execution.
+if [[ -f "$POOL_DIR/pool.json" ]]; then
+  python scripts/archive_level4.py check-pool --pool "$POOL_DIR" --strict --output "$RUN_DIR/evidence_preflight.json"
+fi
+if [[ "$STAGE" == "all" || "$STAGE" == "predict" ]]; then
+  python -u scripts/level4.py predict --pool "$POOL_DIR" 2>&1 | tee "$RUN_DIR/predict.log"
+fi
+if [[ "$STAGE" == "all" || "$STAGE" == "execute" ]]; then
+  python -u scripts/level4.py execute --pool "$POOL_DIR" 2>&1 | tee "$RUN_DIR/execute.log"
+fi
+echo "LEVEL4_DEVELOPMENT_STAGE_COMPLETE pool=$POOL_DIR; task thresholds still require calibration"

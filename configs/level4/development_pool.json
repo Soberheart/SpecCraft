@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "mode": "development_geometry_collection",
+  "candidate_count": 16,
+  "search_seed": 0,
+  "bounds_mm_mm_deg": [40, 40, 10],
+  "initial_std_mm_mm_deg": [8, 8, 10],
+  "axes": {"u": [1, 0, 0], "v": [0, 1, 0]},
+  "primary_frame": 60,
+  "primary_s": 1.920,
+  "auxiliary_frame": 62,
+  "auxiliary_s": 1.984,
+  "grid": {
+    "spacing_mm": 1.0,
+    "initial_padding_mm": [50, 50, 20],
+    "max_cells": 4000000,
+    "particle_support_radius_mm": 2.0,
+    "status": "development_representation_parameters_not_task_thresholds",
+    "radius_source": "development representation parameter: legacy sdf.dist_offset=0.01 times reported unit_to_meter=0.2; not an actual particle radius; runtime scale must be verified"
+  },
+  "initial_reset_max_error_mm": 0.001,
+  "initial_reset_tolerance_scope": "provisional reproducibility diagnostic; not a task tolerance",
+  "material_thresholds": {"rho": null, "eta": null, "measurement_tolerance_ratio": null},
+  "test_protocol_status": "not_frozen",
+  "notes": "Development collection only. Repeat with 2.0/0.5 mm grids and raw support audits before choosing task thresholds. Initial padding is a finite diagnostic envelope: any boundary contact or outside raw support is unknown. Reset tolerance must be reviewed on nominal repeated simulations. Do not use this config to claim task success."
+}

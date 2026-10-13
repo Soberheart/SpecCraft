@@ -1,6 +1,28 @@
-# Doughnet-LLM：DoughNet 复现与目标规划研究
+# SpecCraft：面向可塑材料操纵的语言约束预测规划
 
-本仓库基于 [官方 DoughNet](https://github.com/dornik/doughnet)，包含 AE/Dyn 复现修复、训练、评估及实验归档脚本。已完成 AE 和 Dyn 的连续 30 epoch 训练与测试；目标点云 CEM 规划（Level 3）和语言约束扩展尚未完成。
+本仓库基于 [官方 DoughNet](https://github.com/dornik/doughnet)，包含 AE/Dyn 复现修复、训练、评估及实验归档脚本。已完成 AE 和 Dyn 的连续 30 epoch 训练与测试，以及单场景目标点云 CEM/random 搜索、模拟执行和比较（Level 3）。Level 4 Oracle 约束规划正在开发与验证，尚未完成正式研究对照；语言约束模块尚未实现。
+
+项目与 GitHub 仓库名称为 **SpecCraft**，仓库地址为 <https://github.com/Soberheart/SpecCraft>。为保持既有实验可复现，本地历史目录、服务器 `doughnet` 目录、Python 环境和 DoughNet 模型名称不随项目改名而更改。
+
+## 同步程序到 GitHub
+
+在项目目录运行（Windows、Linux 均支持 Python 3.9+ 和 Git）：
+
+Windows PowerShell（自动寻找可用 Python）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync_github.ps1 -DryRun
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync_github.ps1 -Message "Update SpecCraft code"
+```
+
+Linux 或直接使用 Python：
+
+```bash
+python scripts/sync_github.py --dry-run
+python scripts/sync_github.py --message "Update SpecCraft code"
+```
+
+第一条仅预览和检查；第二条在确认后提交全部非忽略修改并推送当前分支。数据、权重与实验产物不随代码上传。详见 [同步与安全说明](docs/github_sync.md)。
 
 安装方法、实验结果、训练测试命令及后续工作见 **[中文复现与工作指南](docs/reproduction.md)**。数据集、checkpoint 和实验日志不随 Git 仓库上传，需要单独准备。
 

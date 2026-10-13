@@ -186,3 +186,25 @@ venv/
 .env
 .env.*
 !.env.example
+
+# SpecCraft: local assets and credentials (never included in code sync)
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.pt
+*.ckpt
+*.safetensors
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+credentials.json
+service-account*.json
+/backups/
+/Level4_backups/
+/Level4_restore_checks/
+/runtime_snapshot/
+/.ssh/

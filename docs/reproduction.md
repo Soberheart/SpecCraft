@@ -1,10 +1,10 @@
-# DoughNet 复现与后续工作指南
+# SpecCraft：DoughNet 复现与后续工作指南
 
 ## 1. 当前进度与实验范围
 
 - Level 1：完成 AE 从随机初始化连续训练 30 epoch，并完成完整测试。
 - Level 2：加载已验证 AE，冻结非 `condition` 参数，完成 Dyn 连续训练 30 epoch、单步及序列测试和归档。
-- Level 3：已完成固定场景模拟、预处理、记录动作 Dyn/AE 对照及表面拓扑审计；目标评分核对正在进行，CEM 搜索和所选动作的模拟执行尚未完成。
+- Level 3：已完成单场景 CEM/random 搜索、所选新动作模拟执行及比较；尚无多场景、多规划种子统计。目标与预测时域已更新为 frame 60，历史 frame 62 结果保留为旧记录，不与新协议混用。
 - 语言约束与 LLM 集成：尚未实现，应在点云规划基线验证后开展。
 
 这些结果来自一次训练运行，尚无多随机种子统计。连续完成 30 epoch 不等于完整复现论文所有实验，也不构成会议录用标准。此前五个 AE 可视化案例来自旧 checkpoint，不能作为新 30 epoch AE 的可视化验证。
@@ -14,8 +14,8 @@
 在 Linux GPU 环境执行：
 
 ```bash
-git clone https://github.com/Soberheart/Doughnet-LLM.git
-cd Doughnet-LLM
+git clone https://github.com/Soberheart/SpecCraft.git
+cd SpecCraft
 conda env create -f environment.yml
 conda activate doughnet
 git clone https://github.com/NVlabs/nvdiffrast.git net/nvdiffrast

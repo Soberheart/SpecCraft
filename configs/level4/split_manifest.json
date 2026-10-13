@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "split_id": "level4_pilot_pending_source_hashes",
+  "status": "not_frozen_missing_initial_state_and_task_group_ids",
+  "group_keys": ["initial_state_sha256", "task_family_id"],
+  "user_reported_level3_scene_count": 3,
+  "independently_verified_scene_count": 0,
+  "development": [],
+  "test": [],
+  "rules": [
+    "The three existing scenes are pilot/development evidence only unless a prior untouched split is documented.",
+    "All actions, observations, language paraphrases and search seeds from the same initial state/task group stay together.",
+    "Freeze task thresholds, resolution, point-goal construction, gates and costs using development only before populating test groups.",
+    "Repeated search seeds are not independent scene samples."
+  ]
+}

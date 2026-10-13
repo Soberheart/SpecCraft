@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:doughnet:level4:task-spec:1.0.0",
+  "title": "Level 4 executable TaskSpec (uncalibrated templates intentionally fail)",
+  "type": "object",
+  "required": ["schema_version", "task_id", "object", "semantics", "reference_frame", "initial_reference", "measurement", "time", "terminal_hard", "process_hard", "soft_preferences", "calibration"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "task_id": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "object": {"const": "whole_material"},
+    "semantics": {"const": "world_axis_extent"},
+    "reference_frame": {
+      "type": "object", "required": ["kind", "unit", "origin_mm", "u", "v"],
+      "properties": {"kind": {"const": "initial_fixed_world"}, "unit": {"const": "mm"},
+        "origin_mm": {"$ref": "#/$defs/vector3"}, "u": {"$ref": "#/$defs/vector3"}, "v": {"$ref": "#/$defs/vector3"}}
+    },
+    "initial_reference": {
+      "type": "object", "required": ["source", "u_mm", "v_mm"],
+      "properties": {"source": {"const": "privileged_full_material_initial_state"},
+        "u_mm": {"type": "number", "minimum": 0}, "v_mm": {"type": "number", "minimum": 0}}
+    },
+    "measurement": {
+      "type": "object", "required": ["representation", "operator", "minimum_reference_span_mm", "tolerance_ratio", "prediction_margin_ratio"],
+      "properties": {"representation": {"const": "voxel_union"}, "operator": {"const": "extrema"},
+        "minimum_reference_span_mm": {"type": "number", "exclusiveMinimum": 0},
+        "tolerance_ratio": {"type": "number", "minimum": 0}, "prediction_margin_ratio": {"type": "number", "minimum": 0}}
+    },
+    "time": {
+      "type": "object", "required": ["primary_s", "auxiliary_s", "required_s", "match_tolerance_s"],
+      "properties": {"primary_s": {"type": "number", "minimum": 0}, "auxiliary_s": {"type": "number", "minimum": 0},
+        "required_s": {"$ref": "#/$defs/schedule"}, "execution_required_s": {"$ref": "#/$defs/schedule"},
+        "match_tolerance_s": {"type": "number", "minimum": 0}}
+    },
+    "terminal_hard": {
+      "type": "object", "required": ["id", "rho", "relation", "hard"],
+      "properties": {"id": {"const": "narrow_u"}, "rho": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "relation": {"const": "le"}, "hard": {"const": true}}
+    },
+    "process_hard": {"type": "array", "maxItems": 1, "items": {
+      "type": "object", "required": ["id", "eta", "relation", "hard"],
+      "properties": {"id": {"const": "protect_v"}, "eta": {"type": "number", "minimum": 0, "maximum": 1},
+        "relation": {"const": "le"}, "hard": {"const": true}}}},
+    "soft_preferences": {"const": ["minimum_normalized_action_l2"]},
+    "calibration": {
+      "type": "object", "required": ["status", "evidence_sha256", "split_id"],
+      "properties": {"status": {"enum": ["synthetic_only", "frozen_development"]},
+        "evidence_sha256": {"type": "string", "minLength": 1}, "split_id": {"type": "string", "minLength": 1}}
+    }
+  },
+  "$defs": {
+    "vector3": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+    "schedule": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"type": "number", "minimum": 0}}
+  },
+  "$comment": "Runtime validator additionally checks finite numbers, unit/orthogonal axes, ordered physical times, initial/terminal inclusion, common subset of dense, fixed experiment endpoints and SHA256. experiment=True blocks synthetic thresholds and B without dense schedule."
+}
