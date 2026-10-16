@@ -17,10 +17,10 @@ class CPUResumeTests(unittest.TestCase):
     def test_deferred_missing_archive_rejected_even_when_checkout_contains_it(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);package=root/'level4';package.mkdir()
-            (package/'shared_input.py').write_text('def check():\n    from .archive import safe_name\n')
+            (package/'shared_input.py').write_text('def check():\n    from .archive import safe_name\n', encoding='utf-8')
             with self.assertRaisesRegex(ValueError,'dependency missing: level4.archive'):
                 validate_level4_closure(root)
-            (package/'archive.py').write_text('def safe_name(x): return x\n')
+            (package/'archive.py').write_text('def safe_name(x): return x\n', encoding='utf-8')
             validate_level4_closure(root)
 
     def test_closure_uses_delivered_package_in_isolated_subprocess(self):

@@ -13,7 +13,7 @@ from level4.archive import (inventory, copy_archive, verify_files, pack_archive,
 class ArchiveTests(unittest.TestCase):
     def fixture(self, root):
         src = root / 'source'; src.mkdir()
-        (src / 'failed.log').write_text('simulation failed; never erase this')
+        (src / 'failed.log').write_text('simulation failed; never erase this', encoding='utf-8')
         request = {'run': {'run_id': 'failure_01', 'level': 4, 'data_kind': 'independent_simulation',
                           'scientific_status': 'failed', 'stability_basis': 'retained exit record', 'requirements_checked': True},
                    'sources': [{'id': 'run', 'path': str(src)}]}
@@ -31,7 +31,7 @@ class ArchiveTests(unittest.TestCase):
             unpack_archive(root / 'backup.zip', root / 'restore', packed['sha256'], 1024**2)
             verify_files(root / 'restore/files', manifest)
             with self.assertRaises(FileExistsError): copy_archive(path, root / 'backup')
-            self.assertEqual((src / 'failed.log').read_text(), 'simulation failed; never erase this')
+            self.assertEqual((src / 'failed.log').read_text(encoding='utf-8'), 'simulation failed; never erase this')
 
     def test_missing_dependency_and_hash_only_never_complete(self):
         with tempfile.TemporaryDirectory() as d:
@@ -58,7 +58,7 @@ class ArchiveTests(unittest.TestCase):
             root = Path(d); _, _, manifest, path = self.fixture(root)
             copy_archive(path, root / 'backup')
             dest = root / 'backup/files/run/failed.log'
-            dest.write_text('truncated')
+            dest.write_text('truncated', encoding='utf-8')
             with self.assertRaises(ValueError): verify_files(root / 'backup/files', manifest)
             dest.unlink()
             with self.assertRaises(ValueError): verify_files(root / 'backup/files', manifest)
@@ -67,7 +67,7 @@ class ArchiveTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d); src, _, _, path = self.fixture(root)
             with self.assertRaises(ValueError): copy_archive(path, src / 'backup')
-            (src / 'new.log').write_text('new')
+            (src / 'new.log').write_text('new', encoding='utf-8')
             with self.assertRaises(ValueError): copy_archive(path, root / 'backup')
 
     def test_unstable_hash_and_copy_retains_partial_failure(self):
@@ -93,8 +93,8 @@ class ArchiveTests(unittest.TestCase):
     def test_credentials_excluded_and_symlink_is_gap(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d); src, req, _, _ = self.fixture(root)
-            (src / '.env').write_text('private')
-            (src / '.ssh').mkdir(); (src / '.ssh/id_rsa').write_text('private')
+            (src / '.env').write_text('private', encoding='utf-8')
+            (src / '.ssh').mkdir(); (src / '.ssh/id_rsa').write_text('private', encoding='utf-8')
             result = inventory(req)
             self.assertEqual(len(result['files']), 1)
             self.assertEqual(len(result['exclusions']), 2)
@@ -152,7 +152,7 @@ class ArchiveTests(unittest.TestCase):
     def test_postrun_evidence_preserves_failed_exit(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d); run = root / 'run'; run.mkdir()
-            (run / 'exit_code.txt').write_text('1')
+            (run / 'exit_code.txt').write_text('1', encoding='utf-8')
             result = record_run(run, run / 'pool', 1, root / 'run_evidence')
             self.assertEqual(result['scientific_status'], 'failed')
             self.assertEqual(result['statuses']['archive_complete'], 'pending')

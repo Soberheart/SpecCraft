@@ -118,11 +118,11 @@ class SharedResetTests(unittest.TestCase):
         import json
         from level4.archive import verify_zip
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); request=root/'request.json'; request.write_text(json.dumps({'probe_source_sha256':'wrong'}))
+            root=Path(d); request=root/'request.json'; request.write_text(json.dumps({'probe_source_sha256':'wrong'}), encoding='utf-8')
             with self.assertRaises(ValueError): collect(request,root/'data')
             result=verify_zip(root/'diagnostic_evidence.zip')
             self.assertEqual(result['status'],'passed')
-            failure=json.loads((root/'data/collector_failure.json').read_text())
+            failure=json.loads((root/'data/collector_failure.json').read_text(encoding='utf-8'))
             self.assertFalse(failure['candidate_pool_released'])
 
 

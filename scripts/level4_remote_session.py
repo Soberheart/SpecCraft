@@ -269,7 +269,7 @@ def collect(batch):
         write_json(destination/'internal_verification.json',internal)
         print('PROBE_EVIDENCE_DIRECTORY='+str(destination/'evidence'))
         exit_path=destination/'job_exit_code.txt'
-        print('JOB_EXIT_CODE='+(exit_path.read_text().strip() if exit_path.is_file() else 'unrecorded'))
+        print('JOB_EXIT_CODE='+(exit_path.read_text(encoding='utf-8').strip() if exit_path.is_file() else 'unrecorded'))
         print('DIAGNOSTIC_FILES_VERIFIED; CANDIDATE_POOL_NOT_RELEASED')
     except Exception as exc:
         if process.poll() is None:

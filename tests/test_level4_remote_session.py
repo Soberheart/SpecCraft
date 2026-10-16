@@ -119,7 +119,7 @@ class RemoteSessionTests(unittest.TestCase):
             with patch.object(sys,'argv',['remote',str(parent),hashlib.sha256(data).hexdigest(),str(len(data))]),patch.object(sys,'stdin',SimpleNamespace(buffer=io.BytesIO(data))),patch.object(sys,'stdout',stdout),patch('subprocess.run',side_effect=command_reply) as run:
                 exec(compile(code,'remote_submit','exec'),{})
             self.assertEqual(run.call_count,2)
-            self.assertEqual((parent/'submitted_job_id.txt').read_text(),JOB+'\n')
+            self.assertEqual((parent/'submitted_job_id.txt').read_text(encoding='utf-8'),JOB+'\n')
             self.assertTrue(stdout.getvalue().startswith('LEVEL4_SUBMISSION_JSON='))
             self.assertEqual((parent/'tools/run_shared_reset.pbs').read_bytes(),members['run_shared_reset.pbs'])
 
@@ -139,12 +139,12 @@ class RemoteSessionTests(unittest.TestCase):
             self.assertEqual(start.call_count,1)
             collection=next(batch.glob('collection_*'))
             self.assertEqual((collection/'evidence/report.json').read_bytes(),payload)
-            self.assertEqual(json.loads((collection/'internal_verification.json').read_text())['internal_verification']['status'],'passed')
+            self.assertEqual(json.loads((collection/'internal_verification.json').read_text(encoding='utf-8'))['internal_verification']['status'],'passed')
 
     def test_submit_opens_one_connection_and_saves_receipt(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d); base=root/'approved'; base.mkdir(); archive=root/'tools.zip'; archive.write_bytes(b'fake toolkit')
-            delivery=root/'delivery.json'; delivery.write_text(json.dumps({'archive_name':'tools.zip','archive_bytes':archive.stat().st_size,'archive_sha256':remote.digest(archive)}))
+            delivery=root/'delivery.json'; delivery.write_text(json.dumps({'archive_name':'tools.zip','archive_bytes':archive.stat().st_size,'archive_sha256':remote.digest(archive)}), encoding='utf-8')
             def ssh_reply(command,**kwargs):
                 self.assertEqual(command[:3],['ssh','-T','NSCC-ASPIRE2A'])
                 self.assertEqual(kwargs['input'],b'fake toolkit')
@@ -153,13 +153,13 @@ class RemoteSessionTests(unittest.TestCase):
             with patch.object(remote,'APPROVED_DESTINATION',base),patch('subprocess.run',side_effect=ssh_reply) as run:
                 remote.submit(delivery)
             self.assertEqual(run.call_count,1)
-            receipt=json.loads(next(base.glob('*/submission.json')).read_text())
+            receipt=json.loads(next(base.glob('*/submission.json')).read_text(encoding='utf-8'))
             self.assertEqual(receipt['ssh_connections'],1)
 
     def test_failed_submission_retains_logs_and_no_confirmed_job(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d); base=root/'approved'; base.mkdir(); archive=root/'tools.zip'; archive.write_bytes(b'x')
-            delivery=root/'delivery.json'; delivery.write_text(json.dumps({'archive_name':'tools.zip','archive_bytes':1,'archive_sha256':remote.digest(archive)}))
+            delivery=root/'delivery.json'; delivery.write_text(json.dumps({'archive_name':'tools.zip','archive_bytes':1,'archive_sha256':remote.digest(archive)}), encoding='utf-8')
             with patch.object(remote,'APPROVED_DESTINATION',base),patch('subprocess.run',return_value=SimpleNamespace(returncode=1,stdout=b'failed')):
                 with self.assertRaises(RuntimeError): remote.submit(delivery)
             self.assertEqual(len(list(base.glob('*/submission_failure.json'))),1)

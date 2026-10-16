@@ -136,7 +136,7 @@ def attach_action_capture(workspace,recorder,tools,indices,output):
     workspace.log=log
 
 
-def capture(runtime,config,output,shared_state):
+def capture(runtime,config,output,shared_state,topology_source_sha256=None,gpu_builder_source_sha256=None):
     output.mkdir(parents=True,exist_ok=False);recorder=Recorder(output)
     try:
         os.chdir(runtime);sys.path.insert(0,str(runtime))
@@ -148,6 +148,9 @@ def capture(runtime,config,output,shared_state):
         if module.DEBUG:raise ValueError('Candidate audit requires normal simulator execution')
         cfg=OmegaConf.load(config);cfg.log.base_dir=str(output/'scenes');(output/'scenes').mkdir()
         OmegaConf.save(cfg,output/'requested_config.yaml')
+        if gpu_builder_source_sha256 is not None:
+            from level4.gpu_binding import install
+            install(module,runtime/'sim/generate/builder.py',gpu_builder_source_sha256,output)
         workspace=module.GenerationWorkspace(cfg)
         static=workspace.scene.sim.mpm_solver.particles_info.to_numpy()
         np.savez_compressed(output/'static_material_info.npz',**{k:array(static[k]) for k in ('mat_idx','mu','lam','mass')})
@@ -157,6 +160,9 @@ def capture(runtime,config,output,shared_state):
             'note':'Actual scene entities; never infer order from a placeholder material ID'})
         attach_recorder(recorder,workspace,shared_state)
         attach_action_capture(workspace,recorder,tools,indices,output)
+        if topology_source_sha256 is not None:
+            from level4.topology_transaction import install
+            write_json(output/'execution_adapter.json',install(workspace,topology_source_sha256))
         workspace.run()
         write_json(output/'capture_report.json',{'status':'captured_not_task_evaluated','created_utc':utc_now(),
             'states':recorder.rows,'shared_state_sha256':digest(shared_state),'no_warmup_replayed':True,
@@ -281,7 +287,9 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='mode',required=True)
     child=sub.add_parser('capture')
     for name in ('runtime','config','output','shared-state'):child.add_argument('--'+name,type=Path,required=True)
+    child.add_argument('--topology-source-sha256')
+    child.add_argument('--gpu-builder-source-sha256')
     outer=sub.add_parser('collect');outer.add_argument('--request',type=Path,required=True);outer.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
-    if args.mode=='capture':capture(args.runtime.resolve(),args.config.resolve(),args.output.resolve(),args.shared_state.resolve())
+    if args.mode=='capture':capture(args.runtime.resolve(),args.config.resolve(),args.output.resolve(),args.shared_state.resolve(),args.topology_source_sha256,args.gpu_builder_source_sha256)
     else:sys.exit(collect(args.request.resolve(),args.output.resolve()))

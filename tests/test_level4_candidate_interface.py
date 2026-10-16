@@ -78,7 +78,44 @@ class CandidateInterfaceTests(unittest.TestCase):
             unknown=State();scene.set_state(unknown);scene.step()
             self.assertIsNone(clock['active_substeps'])
             self.assertEqual(events.count('step'),163)
-            self.assertEqual(len((Path(d)/'clock_events.jsonl').read_text().splitlines()),clock['event_count'])
+            self.assertEqual(len((Path(d)/'clock_events.jsonl').read_text(encoding='utf-8').splitlines()),clock['event_count'])
+
+    def test_event_replay_matches_frame_prefixes_and_rejects_tampering(self):
+        from scripts.probe_level4_candidate_interface import attach_clock_capture
+        from level4.candidate_interface import reduce_clock_events
+        class State:pass
+        sim=SimpleNamespace(cur_substep_global=0,n_substeps=10)
+        def step():sim.cur_substep_global+=10
+        def restore(state):sim.cur_substep_global=0
+        scene=SimpleNamespace(sim=sim,step=step,set_state=restore,reset=lambda:None,get_state=lambda:State())
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);clock=attach_clock_capture(scene,root);scene.reset();tools=root/'tools';tools.mkdir()
+            def save(frame):
+                np.savez(tools/('frame_%03d.npz'%frame),step=np.asarray(frame*16),
+                    sample_global_substep=np.asarray(sim.cur_substep_global),current_local_substep=np.asarray(sim.cur_substep_global%50),
+                    previous_local_substep=np.asarray((sim.cur_substep_global-1)%50),substep_dt=np.asarray(.0002),
+                    active_branch_clock_known=np.asarray(True),active_branch_substeps=np.asarray(clock['active_substeps']),
+                    clock_event_count=np.asarray(clock['event_count']))
+            scene.step();save(0);state=scene.get_state()
+            for _ in range(160):scene.step()
+            scene.set_state(state);scene.step();save(1)
+            result=reduce_clock_events(root/'clock_events.jsonl',tools,frame_count=2)
+            self.assertAlmostEqual(result['records'][1]['active_branch_elapsed_s'],.002)
+            self.assertFalse(result['all_elapsed_times_equal_original_labels'])
+            self.assertFalse(result['candidate_pool_released'])
+            original=(root/'clock_events.jsonl').read_text(encoding='utf-8')
+            import json
+            events=[json.loads(s) for s in original.splitlines()];events[3]['active_substeps']+=10
+            (root/'clock_events.jsonl').write_text('\n'.join(json.dumps(s) for s in events), encoding='utf-8')
+            with self.assertRaises(ValueError):reduce_clock_events(root/'clock_events.jsonl',tools,frame_count=2)
+
+    def test_clock_probe_guard_retains_failure_without_simulation(self):
+        from scripts.probe_level4_clock_diagnostic import collect
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);request=root/'request.json';write_json(request,{'kind':'invalid'})
+            with patch('sys.stdout',io.StringIO()):self.assertEqual(collect(request,root/'data'),1)
+            self.assertEqual(read_json(root/'data/stage_exit.json')['execution_subprocess_exits_recorded'],0)
+            self.assertEqual(verify_zip(root/'diagnostic_evidence.zip')['status'],'passed')
 
     def test_resettable_clock_consistency_is_separate_from_elapsed_time(self):
         packet={'step':np.asarray(400),'sample_global_substep':np.asarray(10),
@@ -177,7 +214,7 @@ class CandidateInterfaceTests(unittest.TestCase):
             with self.subTest(mode=mode),tempfile.TemporaryDirectory() as d:
                 args,rows=fixture(Path(d))
                 if mode=='collision':rows[0]['obj']['particles']['colliding'][0]=1;self.mutate_log(args,rows)
-                else:(args[0]/'tool_entity_mapping.json').write_text('{"names":["finger_left","ground","finger_right"],"gripper_indices":[0,2]}')
+                else:(args[0]/'tool_entity_mapping.json').write_text('{"names":["finger_left","ground","finger_right"],"gripper_indices":[0,2]}', encoding='utf-8')
                 with self.assertRaises(ValueError):audit_candidate(*args)
 
     def test_guard_failure_retains_stage_and_verifiable_bundle(self):

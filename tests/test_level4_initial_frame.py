@@ -31,7 +31,7 @@ class InitialFrameTests(unittest.TestCase):
             assert_same_frame(frame,decoded)
             with np.load(a,allow_pickle=False) as p:
                 self.assertTrue(all(p[k].dtype.kind in 'biuf' for k in p.files))
-            self.assertNotIn('numpy._core',m.read_text())
+            self.assertNotIn('numpy._core',m.read_text(encoding='utf-8'))
 
     def test_exact_reference_check_and_native_preprocessing_pickle(self):
         with tempfile.TemporaryDirectory() as d:
@@ -51,7 +51,7 @@ class InitialFrameTests(unittest.TestCase):
     def test_changed_npz_or_descriptor_rejected(self):
         for mode in ('hash','dtype','shape','future','duplicate','missing'):
             with self.subTest(mode=mode),tempfile.TemporaryDirectory() as d:
-                _,a,m=self.packet(Path(d));meta=json.loads(m.read_text())
+                _,a,m=self.packet(Path(d));meta=json.loads(m.read_text(encoding='utf-8'))
                 def first_array(node):
                     if node['type']=='array': return node
                     items=node.get('items',[])
@@ -67,7 +67,7 @@ class InitialFrameTests(unittest.TestCase):
                 else:
                     with np.load(a,allow_pickle=False) as p: values={k:p[k] for k in p.files}
                     values['future_material']=np.ones((5,3));np.savez(a,**values);meta['arrays_sha256']=digest(a)
-                m.write_text(json.dumps(meta))
+                m.write_text(json.dumps(meta), encoding='utf-8')
                 with self.assertRaises(ValueError): load_frame(a,m)
 
     def test_noninitial_frame_rejected(self):
@@ -84,9 +84,9 @@ class InitialFrameTests(unittest.TestCase):
             (root/'initial_frame_source.py').write_bytes(source.read_bytes())
             np.savez(root/'logged_frame0.npz',mpm_pos=frame['obj']['particles']['pos'],mpm_active=np.ones(2))
             names=('initial_frame_source.py','nominal_first_frame.npz','nominal_first_frame.json','logged_frame0.npz')
-            (root/'tool_manifest.json').write_text(json.dumps({'files_sha256':{n:digest(root/n) for n in names}}))
+            (root/'tool_manifest.json').write_text(json.dumps({'files_sha256':{n:digest(root/n) for n in names}}), encoding='utf-8')
             checked=validate_preprocess_input(root,root/'report.json');assert_same_frame(frame,checked)
-            report=json.loads((root/'report.json').read_text())
+            report=json.loads((root/'report.json').read_text(encoding='utf-8'))
             self.assertTrue(report['all_frame_fields_roundtrip_exactly'])
             self.assertFalse(report['new_simulation_run']);self.assertFalse(report['model_prediction_run'])
 

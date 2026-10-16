@@ -117,7 +117,7 @@ class PipelineTests(unittest.TestCase):
             audit_reset([a,b],root/"reset.json")
             self.assertEqual(read_json(root/"reset.json")["status"],"passed")
             with self.assertRaises(ValueError):audit_reset([a,a],root/"duplicate.json")
-            (b/"runtime_snapshot/manifest.json").write_text(json.dumps({"files_sha256":{"sim.py":"changed"}}))
+            (b/"runtime_snapshot/manifest.json").write_text(json.dumps({"files_sha256":{"sim.py":"changed"}}), encoding='utf-8')
             with self.assertRaises(ValueError):audit_reset([a,b],root/"changed.json")
             c=raw_fixture(root,"c",error=.01)
             with self.assertRaises(ValueError):audit_reset([a,c],root/"failed.json")
@@ -129,14 +129,14 @@ class PipelineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);pool=raw_fixture(root)
             audit(pool,root/"audit",spacings=(1,.5),radii=(.5,))
-            with (root/"audit/representation.csv").open() as stream:rows=list(csv.DictReader(stream))
+            with (root/"audit/representation.csv").open(encoding='utf-8') as stream:rows=list(csv.DictReader(stream))
             u=[r for r in rows if r["axis"]=="u"]
             self.assertTrue(all(float(r["raw_particle_span_mm"])==2 for r in u))
             self.assertTrue(all(float(r["analytic_ball_union_span_mm"])==3 for r in u))
             self.assertTrue(all(r["status"]=="measured" for r in rows))
             with self.assertRaises(ValueError):audit(pool,root/"bad_id",candidate_ids=["absent"])
             audit(pool,root/"outside",spacings=(1,),radii=(8,))
-            with (root/"outside/representation.csv").open() as stream:rows=list(csv.DictReader(stream))
+            with (root/"outside/representation.csv").open(encoding='utf-8') as stream:rows=list(csv.DictReader(stream))
             self.assertTrue(all(r["status"]=="unknown" for r in rows))
 
     def test_reset_gate_rejects_changed_actual_inputs_source_and_environment(self):
@@ -186,7 +186,7 @@ class PipelineTests(unittest.TestCase):
             write_json(out/"complete.json",{"pool_sha256":sha256(pool/"pool.json"),"packet_sha256":sha256(out/"trajectory.npz")})
             write_json(out/"exit.json",{"exit_code":0,"selection_sha256":None})
             with self.assertRaises(ValueError):analyze(pool,path,root/"rejected.json",frozen)
-            (out/"exit.json").write_text(json.dumps({"exit_code":0,"selection_sha256":sha256(frozen)}))
+            (out/"exit.json").write_text(json.dumps({"exit_code":0,"selection_sha256":sha256(frozen)}), encoding='utf-8')
             analyze(pool,path,root/"associated.json",frozen)
             self.assertEqual(read_json(root/"associated.json")["selection_timing"],"prospective")
 

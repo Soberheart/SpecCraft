@@ -28,7 +28,7 @@ def initial_fixture(root):
         'actual_material_map_equal':True,'recomputed_from_body':True,'unchanged_limit_mm':.001,
         'frame0_within_unchanged_limit':True,'candidate_pool_released':False,
         'shared_source_sha256':sha256(source/'shared_source_state.npz'),'test_data_kind':'synthetic_only'})
-    (source/'model_config.yaml').write_text('{}')
+    (source/'model_config.yaml').write_text('{}', encoding='utf-8')
     scene=root/'scene'; scene.mkdir()
     write_json(scene/'config.yaml',{'ee':{'type':'gripper'},'actions':{'grasp':{'type':'grasp','from_offset':[0,0,0],
         'to_pos':[0,0,0],'to_quat':[1,0,0,0]}},'log':{'n_iter':16},'sim':{'step_dt':.002,'seed':0}})
@@ -111,7 +111,7 @@ class SharedInputTests(unittest.TestCase):
                 'shared_source_sha256':sha256(root/'shared_source_state.npz'),'frame0_pair_max_abs_mm':0})
             def manifest():
                 p=root/'evidence_manifest.json'
-                if p.exists(): p.write_text(json.dumps({'files_sha256':{x.relative_to(root).as_posix():sha256(x) for x in root.rglob('*') if x.is_file() and x!=p}}))
+                if p.exists(): p.write_text(json.dumps({'files_sha256':{x.relative_to(root).as_posix():sha256(x) for x in root.rglob('*') if x.is_file() and x!=p}}), encoding='utf-8')
                 else: write_json(p,{'files_sha256':{x.relative_to(root).as_posix():sha256(x) for x in root.rglob('*') if x.is_file()}})
             manifest(); self.assertTrue(checked_capture(root)['recomputed_from_body'])
             packet['mpm_C'][0,0,0]+=1; np.savez(root/'attempt_2/reset_returned.npz',**packet); manifest()
@@ -217,7 +217,7 @@ class SharedInputTests(unittest.TestCase):
                 if mode=='source':
                     p=Path(request['runtime_manifest']); value=read_json(p)
                     value['files_sha256']['../escape.py']='0'*64
-                    p.write_text(json.dumps(value))
+                    p.write_text(json.dumps(value), encoding='utf-8')
                 else: request['runtime_overlays']={'level4/../../escape.py':'overlay.py'}
                 with self.assertRaisesRegex(ValueError,'Unexpected'):
                     assemble_runtime(request,tools,parent)

@@ -4,6 +4,7 @@ This diagnoses an execution interface, never selects an action using truth and
 never certifies the other candidates or any task threshold.
 """
 from pathlib import Path
+import json
 import math
 import pickle
 import numpy as np
@@ -43,6 +44,69 @@ def inspect_tool_clock(packet,frame):
             'no_reset_counter_reference':expected,'nominal_label_s':frame*.032,
             'elapsed_physical_time_certified':False,
             'clock_scope':'resettable_solver_counter; state-restore event history required for elapsed time'}
+
+
+def reduce_clock_events(event_path,tool_directory,frame_count=63):
+    """Recompute active-branch integration from observed calls and rollbacks.
+
+    This certifies the *recorded integration count*, not task satisfaction or
+    the protocol's time labels. Counter/state edits or untracked restores fail.
+    """
+    events=[json.loads(line) for line in Path(event_path).read_text(encoding='utf-8').splitlines()]
+    if not events or frame_count<1:raise ValueError('Missing scene clock event history')
+    active=0;counter=0;snapshots={};states={0:0};reset_count=restore_count=step_count=0
+    def integer(value):
+        if type(value) is not int or value<0:raise ValueError('Invalid clock event integer')
+        return value
+    for index,event in enumerate(events,1):
+        if integer(event['event'])!=index:raise ValueError('Clock event sequence changed')
+        kind=event['kind']
+        if kind=='reset_origin':
+            if integer(event['solver_counter_after'])!=0:raise ValueError('Scene reset did not reset solver counter')
+            active=0;counter=0;reset_count+=1
+        elif kind=='get_state':
+            snapshot=integer(event['snapshot'])
+            if snapshot==0 or snapshot in snapshots:raise ValueError('Duplicate scene clock snapshot')
+            snapshots[snapshot]=active
+        elif kind=='step':
+            n=integer(event['n_substeps'])
+            if n!=10 or integer(event['solver_counter_before'])!=counter or integer(event['solver_counter_after'])!=counter+n:
+                raise ValueError('Scene step count or solver counter changed')
+            active+=n;counter+=n;step_count+=1
+        elif kind=='set_state':
+            snapshot=event['source_snapshot']
+            if snapshot is None or integer(snapshot) not in snapshots:
+                raise ValueError('Unknown scene restore source; active-branch time is not certified')
+            if integer(event['before_active_substeps'])!=active or integer(event['solver_counter_after'])!=0:
+                raise ValueError('Scene restore clock changed')
+            active=snapshots[snapshot];counter=0;restore_count+=1
+        else:raise ValueError('Unknown/untrackable clock event')
+        if integer(event['active_substeps'])!=active:raise ValueError('Recorded active-branch clock differs from event replay')
+        states[index]=active
+    if reset_count!=1:raise ValueError('Expected exactly one shared reset origin')
+    frames=[]
+    for frame in range(frame_count):
+        with np.load(Path(tool_directory)/('frame_%03d.npz'%frame),allow_pickle=False) as packet:
+            inspect_tool_clock(packet,frame)
+            known=np.asarray(packet['active_branch_clock_known'])
+            if known.shape!=() or known.dtype.kind!='b' or not bool(known):raise ValueError('Per-frame active-branch clock unknown')
+            event_index=np.asarray(packet['clock_event_count']);value=np.asarray(packet['active_branch_substeps'])
+            if (event_index.shape!=() or value.shape!=() or event_index.dtype.kind not in 'iu' or value.dtype.kind not in 'iu'
+                    or int(event_index) not in states or states[int(event_index)]!=int(value)):
+                raise ValueError('Per-frame clock disagrees with event prefix')
+            frames.append({'frame':frame,'nominal_label_s':frame*.032,'active_branch_substeps':int(value),'event_prefix':int(event_index)})
+    origin=frames[0]['active_branch_substeps']
+    for row in frames:
+        row['active_branch_elapsed_s']=(row['active_branch_substeps']-origin)*.0002
+        row['elapsed_minus_label_s']=row['active_branch_elapsed_s']-row['nominal_label_s']
+    if any(b['active_branch_substeps']<=a['active_branch_substeps'] for a,b in zip(frames,frames[1:])):
+        raise ValueError('Retained material sequence clock is not increasing')
+    return {'kind':'observed_scene_active_branch_clock_v1','status':'recorded_integration_count_verified',
+        'events':len(events),'step_calls_including_temporary_branches':step_count,'state_restore_calls':restore_count,
+        'scene_reset_calls':reset_count,'substep_dt_s':.0002,'records':frames,
+        'all_elapsed_times_equal_original_labels':all(abs(r['elapsed_minus_label_s'])<=1e-8 for r in frames),
+        'main_frame_unchanged':60,'original_main_label_s':1.920,'task_satisfaction':'not_evaluated',
+        'candidate_pool_released':False,'scope':'Observed integration/rollback only; no task protocol change or action-selection input'}
 
 
 def diagnose_tool_schedule(output,source_log,physical_reference,nominal_center,parameters):
