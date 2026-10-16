@@ -4,7 +4,7 @@
 
 - 执行：Level 4 执行 agent（Claude，Cowork）；依据：任务单 L4-01 > 决策 D-1 > 交接包 2026-10-16。
 - 范围：只用 CPU；**0 次新仿真、0 次 Dyn/AE/Renderer、未登录 NSCC、未提交 PBS**。
-- 运行环境：用户电脑上的 Linux 工作 VM（Python 3.10.12、NumPy 2.2.6、PyYAML），直接读写仓库与 D 盘数据；Windows 真解释器（Codex runtime）未能从本会话调用，Windows 复验脚本已备好（见 A2）。
+- 运行环境：用户电脑上的 Linux 工作 VM（Python 3.10.12、NumPy 2.2.6、PyYAML），直接读写仓库与 D 盘数据；与 NSCC 环境版本不同，服务器复验见 §三。
 - Phase A 产物目录：`D:\SpecCraft\level 4\L4-01_phaseA_20261016\`（下称 `PA`）；本目录 `records/level4_discriminative_batch_20261016/` 保存本报告与小型产物副本。
 
 ## 一、结论先行
@@ -12,7 +12,7 @@
 | 项 | 状态 | 关键结果 |
 |---|---|---|
 | A1 核验 | 通过 | 交接包 368 文件 / 71,950,677 bytes 逐 hash 通过（本机副本与下发 zip 内副本 manifest 同为 `cdfce55c…`）；固定对 ZIP 314 项内部 hash 通过并独立 CPU 重审一致；HEAD `0dfc2e2d…` 不变；git status 与 `git_state.json` 一致（4 M + 15 ??；交接正文写“16 个 untracked”，实际索引为 15，属笔误）；代码快照 212 文件与工作树逐字节相同 |
-| A2 JSON `Invalid \escape` | 根因确认并修复；VM 三条件全绿；**Windows 真解释器复验待执行** | 不是“路径未经 json.dumps”。写入方都是 `json.dump(ensure_ascii=False)`+UTF-8，正确；读取方（测试）用 `read_text()` 默认编码。Windows 中文系统默认 cp936/GBK，用户目录 `Admin（无密码）` 中 `）`=EF BC 89，0x89 被 GBK 当作双字节首字节，吞掉 JSON 转义 `\\` 的第一个反斜杠，留下 `\D`/`\.` → Invalid \escape。最小字节级复现与回归测试已加 |
+| A2 JSON `Invalid \escape` | 根因确认并修复；VM 三条件全绿（Windows 复验已取消，见 §九） | 不是“路径未经 json.dumps”。写入方都是 `json.dump(ensure_ascii=False)`+UTF-8，正确；读取方（测试）用 `read_text()` 默认编码。Windows 中文系统默认 cp936/GBK，用户目录 `Admin（无密码）` 中 `）`=EF BC 89，0x89 被 GBK 当作双字节首字节，吞掉 JSON 转义 `\\` 的第一个反斜杠，留下 `\D`/`\.` → Invalid \escape。最小字节级复现与回归测试已加 |
 | A3 备用变换单位 | 修复 + 独立期望测试；主分支不变 | frozen 主分支 candidate_001 最大值仍为 **0.004149973392486572 mm（frame26）**，与旧报告逐字段相同；修复后 translate_then_rotate 为 0.121 mm（旧错误值 40.15 mm），比冻结约定差约 30 倍 → 平移顺序假说排除 |
 | A4 合同 v2 | 实现并出审核 | `pair_result_review_v2.json`：`tool_transform_interface=passed_v2`（最差 0.008532 mm，summary opening，frame32）；v1 复现 `failed_v1`，v1 文件 sha256 前后不变；`model_alignment=unverified`；D-1 已追加到 `docs/level4_decisions.md` |
 | A5 字段与时钟说明（限时） | 按时提交 | current/previous/latest/summary/command 来源与相位已从源码+数据确认；v3 下两候选 frame60 保留积分 = 9600 substeps = **1.920 s**（距 frame0），距共享 reset 1.922 s；旧“多保留 60 ms”未再出现；旧模型时序对齐仍未确认（交 D4） |
@@ -21,7 +21,7 @@
 | A8 D2 量测 | 完成 | 连通组件（以初态渗流半径 r0 为基准，r0=2.637 mm）、颈宽、质量份额；合成形状测试全对。实测：名义与 candidate_001 在 frame60 都只有 1 个显著组件，仅 1–5 个游离粒子；捏合面薄片厚 6.7/7.5 mm（frame60，4 mm 切片）→ “捏细不断” |
 | A9 请求 | 草案完成 | 39 次新仿真（≤45）、≈70 次 Dyn rollout、5 个执行作业 + 1 个 Dyn 作业 + 1 个 S4 作业；D4 通过线已预先写定 |
 
-**Phase A 判定**：A2–A4、A6–A9 的 CPU 工作全部完成，A5 按时提交。剩余一项需要你的电脑执行：A2 的 Windows 真解释器两种编码复验（一条 PowerShell 命令，见 §三）。在它通过前，我把 A2 记为“VM 通过、Windows 待复验”。
+**Phase A 判定**：A2–A4、A6–A9 的 CPU 工作全部完成，A5 按时提交。用户已确认 Phase A（2026-10-16）。
 
 ## 二、修改的文件与理由
 
@@ -60,17 +60,11 @@
 
 日志：`PA/A2_tests_vm_final/`。字节级根因复现：`tests/test_level4_text_encoding.py::test_windows_user_path_json_is_utf8_and_gbk_decoding_reproduces_failure`。
 
-**Windows 真解释器复验（请在 Windows PowerShell 执行一次）**：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File 'D:\SpecCraft\level 4\L4-01_phaseA_20261016\A2_windows_check.ps1'
-```
-
-脚本只运行测试（`-B` 不写缓存），在 `PA` 下新建 `A2_tests_windows_<guid>` 保存两种条件（`-X utf8` 与 `-X utf8=0` 默认 cp936）的日志与退出码。期望两者都为 `exit=0`、`Ran 219 tests … OK`。
+**测试环境说明**：Level 4 全部实验在 NSCC Linux 上运行，原 5 个错误只在 Windows 中文编码下出现，不影响服务器。本地 VM（Python 3.10 / NumPy 2.2）与服务器（Python 3.9 / NumPy 1.24）版本不同，因此在 Phase B 提交前于 NSCC venv 跑一次 Level 4 全套测试作为环境复验（登录节点、仅 CPU）。
 
 ## 四、根因证据与剩余不确定（A2、A3、A5）
 
-- A2：已确认。不确定：Windows 解释器版本/NumPy 版本下其他测试是否有平台差异——由上面的复验回答。
+- A2：已确认。不确定：NSCC 的 Python 3.9 / NumPy 1.24 下是否有版本差异——由 Phase B 提交前的服务器复验回答。
 - A3：已确认的分析工具缺陷；修复不影响主分支。
 - A5（详见 `PA/A5_clock_note/level4_tool_fields_and_v3_clock_note.md`）：
   - 已确认：current = 下一 substep 起始位姿；previous = latest = 最后积分 substep 的位姿（63 帧逐位相等）；`current = previous + vel·dt`（残差 ≤1.2e-6 mm），所以 current/latest 的 0.004 mm 是**一个 substep 的相位差**，不是误差；summary 由两指 latest 重构。
@@ -101,6 +95,12 @@ powershell -ExecutionPolicy Bypass -File 'D:\SpecCraft\level 4\L4-01_phaseA_2026
 
 ## 八、三项独立判断
 
-1. **工程是否完成**：未完成。接口门（v2）已放行，CPU 回归在 VM 三条件下全绿（Windows 复验待做）；Phase B 的批量执行入口与 Dyn 预测入口尚未实现，32 候选执行与预测均未运行。
+1. **工程是否完成**：未完成。接口门（v2）已放行，CPU 回归在 VM 三条件下全绿（NSCC venv 复验在 Phase B 提交前执行）；Phase B 的批量执行入口与 Dyn 预测入口尚未实现，32 候选执行与预测均未运行。
 2. **研究假设证据**：D1、D4、H1–H4 **尚无证据**（没有预测、没有新执行）；未开展不等于被证伪。D2 只有 CPU 几何预判与 2 个已执行候选的量测，倾向“当前合同下无断开边界”，需 Phase B 证实。S0–S4 未运行，0.02 mm 尚无实验支持。
 3. **Level 5 准入**：不具备。Oracle 底座的模型对齐（D4）、实际可行性和选中达标都未验证。
+
+## 九、2026-10-16 补充（用户确认 Phase A 后）
+
+1. 测试与运行环境：用户确认项目全部在 NSCC 运行，本地不做测试。取消 A2 的 Windows 复验；`PA/A2_windows_check.ps1` 保留但不再要求执行。Phase B 提交前在 NSCC venv 运行 Level 4 全套测试。执行 agent 无法直接登录 NSCC，服务器上的操作以完整命令交给用户执行。
+2. D2：按执行 agent 建议，Phase B 照计划执行 4 个 d2_edge 候选实测验证“当前合同下无断开”的预判，不预先改动作空间或工具；结果出来后由总览决定是否调整 D2/T4 设计。
+3. candidate_024：保留登记、不执行、不计分、不重抽。

@@ -73,7 +73,7 @@ D4 = 通过：P1–P3 全通过且 P4 通过或不确定；不通过：任一 P1
 2. 新执行入口：批量读取 pool32/sensitivity 场景、复用 v3 transaction + gpu_binding + 采集；CPU mock 测试通过（**尚未实现**，见报告“下一步”）。
 3. Level 4 Dyn 预测入口：prediction-only，名义工具变换，两种工具输入；CPU 形状/hash 测试（**尚未实现**）。
 4. toolkit 打包：tool_manifest、源码 hash、request.json（含本文件 sha256、通过线、停止规则）、bash -n、PowerShell 5.1 解析检查。
-5. Windows 真实解释器下 Level 4 全套测试两种编码条件通过（见报告 A2）。
+5. NSCC venv（Python 3.9 / NumPy 1.24）下 Level 4 全套 CPU 测试通过（登录节点；命令由执行 agent 给出、用户执行）。
 6. 远端只读检查：项目根/venv/空间（≥5 GB）、qstat 无同名作业、NSCC 原件仍在。
 7. 本文件冻结 hash 写入 request。
 
