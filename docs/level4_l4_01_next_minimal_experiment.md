@@ -80,3 +80,20 @@ D4 = 通过：P1–P3 全通过且 P4 通过或不确定；不通过：任一 P1
 ## 7. 验收（Phase C 前置）
 
 每个 run 保存：动作、tool offset、预测轨迹（frame0–60 全部预测时刻）、执行 63 帧原始材料与工具、退出状态、clock 重放、绑定收据、耗时、hash；未执行明确 `not_executed`；失败与 unknown 保留在分母中。
+
+## 8. 实现与冻结（2026-10-16 补充）
+
+已实现并在本地 CPU 测试（全套 235 项通过）：
+
+| 组件 | 文件 | 说明 |
+|---|---|---|
+| 批量执行入口 | `scripts/run_level4_batch.py` | 复用 job 25837718 的执行路径（封存 runtime + 冻结 22 号 overlay + v3 transaction + PBS GPU 绑定守门），逐 run 记录退出、复位、绑定、时钟重放、工具接口（合同 v2，参照 25837718 candidate_000）；停止规则按 §4 |
+| Dyn 预测入口 | `scripts/predict_level4_batch.py` | 仅预测、不读执行真值；35 候选 × 2 种工具输入 = 70 rollout；v3 名义工具输入用训练采样函数（从封存 `sim/process.py` 原样提取）由 25837718 candidate_000 日志重建，先用同法重建旧语义输入并与池中已存输入比对（bbox/质心 ≤1 mm），不通过即停止 |
+| 服务器准备/提交 | `scripts/level4_phase_b.py` | 登录节点 CPU：校验冻结 22 号 request/工具 hash、场景 hash、382 项依赖，生成作业目录、PBS、request（含本文件 sha256），可选 `--submit`；B-exec 必须在 pilot 全部检查通过后才允许准备；B-dyn 先在登录节点跑工具输入预检 |
+| 冻结输入 | `configs/level4/l4_01/` | pool32/sensitivity 清单与新场景 YAML（`.gitattributes` 禁止换行转换） |
+
+与 §2–§3 的差异（写在结果之前）：
+
+1. B-dyn walltime 由 2 h 改为 3 h（70 次 rollout × 13 时刻全网格解码的保守估计）。
+2. D4 的 P1/P2 需要执行态的同法真值占据，P3（单步）与 AE 重建需要执行帧观测；这些都在执行之后计算，放入 Phase C 的评估作业（需在执行帧上运行 Renderer/编码器，frame0 输入仍复用；此作业提交前另行报总览确认）。B-dyn 本身只产出预测并冻结 hash。
+3. B-S4 的场景在 B-exec 复核后按 A7 预登记规则生成，当前脚本对 B-S4 明确拒绝准备。

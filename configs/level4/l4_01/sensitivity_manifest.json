@@ -1,0 +1,78 @@
+{
+  "schema": "level4_sensitivity_scenes_l4_01_v1",
+  "decision": "D-1 section 3 (S0-S4)",
+  "nominal_scene_sha256": "6d8455c16a7f77501a4c9df36a4d49ebf7c6f58c3f592bc7d098dd7199bb027a",
+  "runs": [
+    {
+      "run_id": "S0_repeat_nominal",
+      "source_candidate": "candidate_000",
+      "action_mm_mm_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "tool_offset_mm": [
+        0.0,
+        0.0
+      ],
+      "purpose": "simulator noise floor vs existing candidate_000",
+      "scene": "S0_repeat_nominal.yaml",
+      "scene_sha256": "8ce60bcf493ce351b60ede407ade5caff12e223751ffc9026f5796f6786c3862",
+      "prediction_input": "unchanged nominal action (offset is an unmodelled interface error)"
+    },
+    {
+      "run_id": "S1_x_0p02",
+      "source_candidate": "candidate_000",
+      "action_mm_mm_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "tool_offset_mm": [
+        0.02,
+        0.0
+      ],
+      "purpose": "tolerance-sized x offset",
+      "scene": "S1_x_0p02.yaml",
+      "scene_sha256": "23df14153ddf57320686d84750749ee7d2fa37fb307df3bdf4968cecd1c112ec",
+      "prediction_input": "unchanged nominal action (offset is an unmodelled interface error)"
+    },
+    {
+      "run_id": "S1_y_0p02",
+      "source_candidate": "candidate_000",
+      "action_mm_mm_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "tool_offset_mm": [
+        0.0,
+        0.02
+      ],
+      "purpose": "tolerance-sized y offset",
+      "scene": "S1_y_0p02.yaml",
+      "scene_sha256": "4e0c3c3abf39eabe9babe5bdda71069c90f4b1e5aa73ea95099d53149e3b37c5",
+      "prediction_input": "unchanged nominal action (offset is an unmodelled interface error)"
+    },
+    {
+      "run_id": "S2_x_0p1",
+      "source_candidate": "candidate_000",
+      "action_mm_mm_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "tool_offset_mm": [
+        0.1,
+        0.0
+      ],
+      "purpose": "robot-repeatability-scale reference",
+      "scene": "S2_x_0p1.yaml",
+      "scene_sha256": "eb132fd9b4b90fd3ba8277e46ba5ac00d31dcc9fb1c28539c08edacac93eede4",
+      "prediction_input": "unchanged nominal action (offset is an unmodelled interface error)"
+    }
+  ],
+  "s4_rule_preregistered": "after B1: the 1-2 executed candidates with the smallest raw-particle neck width at frame60 (or, if any break, those nearest the break/no-break boundary), each re-run with tool offset (0.02, 0) mm",
+  "s3b": "not supported by current single-grasp entries; moved to L5",
+  "pass_criteria_preregistered": "D-1: span and neck change < 0.1 mm and component count unchanged (until epsilon is frozen; then < epsilon/10)"
+}

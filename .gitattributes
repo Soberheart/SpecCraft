@@ -1,0 +1,2 @@
+# L4-01 frozen Phase B inputs are verified by SHA-256 on NSCC: never convert line endings
+configs/level4/l4_01/** -text

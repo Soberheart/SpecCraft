@@ -1,0 +1,276 @@
+cuda_id: 0
+render: false
+scene_id: '0000'
+max_horizon: 3200
+warmup_horizon: 80
+sim:
+  seed: 0
+  allocate_gpu_memory: 4.0
+  precision: 32
+  logging_level: debug
+  step_dt: 0.002
+  substep_dt: 0.0002
+  max_substeps_local: 50
+  gravity:
+  - 0.0
+  - 0.0
+  - -9.81
+  tool:
+    floor_height: -0.005
+  mpm:
+    grid_density: 64
+    particle_diameter: 0.01
+    padding: 0.046875
+    lower_bound:
+    - -0.546875
+    - -0.546875
+    - -0.046875
+    upper_bound:
+    - 0.546875
+    - 0.546875
+    - 1.046875
+check:
+  horizon: 160
+  entities:
+  - left
+  - right
+  - donut
+  - roll
+  vel:
+  - 0.1
+  - 0.0
+  - 0.0
+  min_dist: 0.03125
+log:
+  base_dir: /home/users/ntu/mingjie0/projects/doughnet/records/level4_discriminative_batch_20261016/sensitivity/executions/S1_x_0p02/scenes
+  dt: 0.03333333333333333
+  n_iter: 16
+  wait_after_done: 160
+cam:
+  width: 480
+  height: 480
+  fov: 60.0
+  pos:
+  - 0.0
+  - 0.0
+  - 1.0
+  lookat:
+  - 0.0
+  - 0.0
+  - 0.0
+  up:
+  - 0.0
+  - 1.0
+  - 0.0
+ee:
+  state:
+    pos:
+    - 1.0
+    - 1.0
+    - 1.0
+    quat:
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    open: 0.0
+  controller:
+    lin:
+      p: 40.0
+      i: 0.0
+      d: 0.0
+      vmax: 0.25
+    ang:
+      p: 40.0
+      i: 0.0
+      d: 0.0
+      vmax: 0.785
+    grip:
+      p: 40.0
+      i: 0.0
+      d: 0.0
+      vmax: 0.125
+    dt: 0.002
+    tol: 0.01
+  entities:
+    finger_left:
+      material:
+        name: ee
+        type: tool
+        friction: 8.0
+        contact_softness: 100.0
+        collision_type: particle
+      geom:
+        type: mesh
+        name: finger_cuboid
+        file: board.obj
+        offset_pos:
+        - -0.025
+        - 0.0
+        - 0.125
+        offset_euler:
+        - 0.0
+        - 0.0
+        - 0.0
+        scale:
+        - 0.05
+        - 0.05
+        - 1.0
+        pos:
+        - 0.0
+        - 0.0
+        - 0.0
+        euler:
+        - 0.0
+        - 0.0
+        - 0.0
+        geom: null
+      surface:
+        color:
+        - 0.7
+        - 0.7
+        - 0.7
+        - 1.0
+    finger_right:
+      material:
+        name: ee
+        type: tool
+        friction: 8.0
+        contact_softness: 100.0
+        collision_type: particle
+      geom:
+        type: mesh
+        name: finger_cuboid
+        file: board.obj
+        offset_pos:
+        - 0.025
+        - 0.0
+        - 0.125
+        offset_euler:
+        - 0.0
+        - 0.0
+        - 0.0
+        scale:
+        - 0.05
+        - 0.05
+        - 1.0
+        pos:
+        - 0.0
+        - 0.0
+        - 0.0
+        euler:
+        - 0.0
+        - 0.0
+        - 0.0
+        geom: null
+      surface:
+        color:
+        - 0.7
+        - 0.7
+        - 0.7
+        - 1.0
+  type: gripper
+entities:
+  ground:
+    half_size: 0.05
+    length: 0.3
+    surface:
+      color:
+      - 0.3
+      - 0.3
+      - 0.3
+      - 1.0
+    material:
+      name: ground
+      type: tool
+      friction: 8.0
+      contact_softness: 100.0
+      collision_type: particle
+    geom:
+      type: mesh
+      file: board.obj
+      floor_height: 0.0
+      floor_thickness: 0.005
+      floor_scale: 0.04
+      floor_bottom: -0.005
+      offset_pos:
+      - 0.0
+      - 0.0
+      - 0.0
+      offset_euler:
+      - 0.0
+      - 0.0
+      - 0.0
+      scale:
+      - 1.0
+      - 1.0
+      - 0.04
+      pos:
+      - 0.0
+      - 0.0
+      - -0.005
+      euler:
+      - 0.0
+      - 0.0
+      - 0.0
+  donut:
+    half_size: 0.05
+    length: 0.3
+    surface:
+      color:
+      - 0.1
+      - 0.8
+      - 0.8
+      - 1.0
+    material:
+      name: dough
+      type: elastoplastic
+      lame_mu: 357.14
+      lame_lambda: 1428.57
+      rho: 1.0
+      yield_low_high:
+      - 0.0005
+      - 0.001
+      filling: jittered
+    geom:
+      type: supertoroid
+      x: 0.0
+      y: 0.0
+      ratio: 1.0
+      xscale: 0.3
+      yscale: 0.3
+      height: 0.1
+      center:
+      - 0.0
+      - 0.0
+      - 0.05
+      size:
+      - 0.3
+      - 0.3
+      - 0.1
+      hole: 3.0
+      e_lat: 1.0
+      e_lon: 1.0
+      euler:
+      - 0.0
+      - 0.0
+      - 0.0
+actions:
+  grasp:
+    wait: 0
+    type: grasp
+    from_offset:
+    - 0.0
+    - 0.0
+    - 0.0
+    to_pos:
+    - 0.0001
+    - 0.0
+    - 0.0
+    to_quat:
+    - 0.9659258253132839
+    - 0.0
+    - 0.0
+    - 0.2588190487441982
+    init_d: 0.5
+    close_d: 0.005

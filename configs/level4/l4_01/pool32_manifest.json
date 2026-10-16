@@ -1,0 +1,846 @@
+{
+  "schema": "level4_pool32_l4_01_v1",
+  "source_pool_sha256": "5a62a14376e1d0f9c10565c9915a536e1cc088d41cfa587a3e5fac03df2c990a",
+  "source_pool_directory": "/sessions/rcw-0152zkjqajphjpvnmyrbvbdf/mnt/level 4/candidate_interface_20261013_1c2447374a41418fbef2f86b0d7cbff5/collection_102c5b7ddd7d458e8edb065bac66e78b/evidence/pool",
+  "server_pool_dir_for_new_scenes": "/home/users/ntu/mingjie0/projects/doughnet/records/level4_discriminative_batch_20261016/pool32",
+  "seed0_count32_prefix_equals_frozen16": false,
+  "seed0_count32_rows_differing": [
+    5,
+    14
+  ],
+  "second_group_rule": "generate_actions(1,17)[1:]",
+  "d2_edge_rationale": {
+    "d2_closing_axis_plus": "pinch plane shifted +18 mm along closing axis",
+    "d2_closing_axis_minus": "pinch plane shifted -18 mm along closing axis",
+    "d2_width_axis_edge": "fingers straddle the material edge along the finger-width axis",
+    "d2_corner_yaw": "combined shift toward a corner with +10 deg yaw"
+  },
+  "d2_edge_axes": {
+    "closing_axis_xy": [
+      0.8660254037844387,
+      0.49999999999999994
+    ],
+    "finger_width_axis_xy": [
+      -0.49999999999999994,
+      0.8660254037844387
+    ]
+  },
+  "frozen16_unchanged": {
+    "ids_actions_scene_hashes_verified": true
+  },
+  "scene_method_validated_on_frozen_001_015": true,
+  "finger_geometry": {
+    "centre_mm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "yaw_deg": 30.000000432026432,
+    "open_mm": 100.0,
+    "fingers": [
+      {
+        "name": "finger_left",
+        "sign": -1.0,
+        "half_extent_mm": [
+          5.0,
+          5.0,
+          25.0
+        ],
+        "offset_mm": [
+          -5.0,
+          0.0,
+          25.0
+        ]
+      },
+      {
+        "name": "finger_right",
+        "sign": 1.0,
+        "half_extent_mm": [
+          5.0,
+          5.0,
+          25.0
+        ],
+        "offset_mm": [
+          5.0,
+          0.0,
+          25.0
+        ]
+      }
+    ]
+  },
+  "clearance_state": "shared_source_state.npz mpm_pos (reset state)",
+  "clearance_state_sha256": "dcc8fd5c9537b994d7708e99942f0f6000190368ef470bd7057e07921bea86b8",
+  "candidates": [
+    {
+      "candidate_id": "candidate_000",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scene": "candidate_000.yaml",
+      "scene_sha256": "6d8455c16a7f77501a4c9df36a4d49ebf7c6f58c3f592bc7d098dd7199bb027a",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.0,
+      "frame0_clearance": {
+        "min_clearance_mm": 20.13360242599185,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "existing_execution_reuse"
+    },
+    {
+      "candidate_id": "candidate_001",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        1.0058417687471464,
+        -1.056838906330415,
+        6.40422650443282
+      ],
+      "scene": "candidate_001.yaml",
+      "scene_sha256": "407cb714e0613fb42c12423130812ae27a1ec6fff2e0249519235a7b68a7b6b8",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.641460491797316,
+      "frame0_clearance": {
+        "min_clearance_mm": 20.074814196802773,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "existing_execution_reuse"
+    },
+    {
+      "candidate_id": "candidate_002",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        0.8392009372243177,
+        -4.285354985288888,
+        3.6159505490948476
+      ],
+      "scene": "candidate_002.yaml",
+      "scene_sha256": "704abe72b10e0a7d1171bca27358f6684e1471bec4260473e1380fed5d65176d",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.37771525281864754,
+      "frame0_clearance": {
+        "min_clearance_mm": 18.558119004456753,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_003",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        10.432000361041098,
+        7.576647705033937,
+        -7.037352358069926
+      ],
+      "scene": "candidate_003.yaml",
+      "scene_sha256": "07e558f135cf0c4370fcde1ed28430ab8c9eb3c9292189856eb2cf9d8b1c1173",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.7740403224982353,
+      "frame0_clearance": {
+        "min_clearance_mm": 7.785858964170551,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_004",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        -10.12337176836842,
+        -4.9861957002988175,
+        0.413259793472436
+      ],
+      "scene": "candidate_004.yaml",
+      "scene_sha256": "8c46372f14fa76426019f88deced494accddc858dd7a0fe7f113a3574c4dc767",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.2851286354795534,
+      "frame0_clearance": {
+        "min_clearance_mm": 8.93969534442585,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_005",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        -9.666549058257372,
+        -0.03563306496066583,
+        6.564749350763358
+      ],
+      "scene": "candidate_005.yaml",
+      "scene_sha256": "b0dfbb49237bfb8d034dd5d66fed3ce731fb9db285b689a92d70727887dc964a",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.6995437732124872,
+      "frame0_clearance": {
+        "min_clearance_mm": 12.631030257426168,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_006",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        -5.858138837627613,
+        -4.354071862858479,
+        -3.1630015636915454
+      ],
+      "scene": "candidate_006.yaml",
+      "scene_sha256": "774d1b0acef6c05fcdbdf236b52cae2d725301940ee2220b02ec9cd5eb68f0cd",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.36516177467878835,
+      "frame0_clearance": {
+        "min_clearance_mm": 13.069538331141757,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_007",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        3.2930442909930626,
+        8.34010695554142,
+        -1.2853466294403426
+      ],
+      "scene": "candidate_007.yaml",
+      "scene_sha256": "ffb22efc6ffc9f762491db6192f4b462c0f40bc757fbf9832897f86d0cb97e93",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.2584030041153387,
+      "frame0_clearance": {
+        "min_clearance_mm": 13.257864628342945,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_008",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        10.931707764397487,
+        -5.321557387892908,
+        3.515100700930197
+      ],
+      "scene": "candidate_008.yaml",
+      "scene_sha256": "2a00397af1648c80a12d190379dee99352e29e188119cfcf6f63fe738e6962d4",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.4647016076753617,
+      "frame0_clearance": {
+        "min_clearance_mm": 14.631817416634263,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_009",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        7.227761453214469,
+        0.7520983820869965,
+        -7.4349924935380844
+      ],
+      "scene": "candidate_009.yaml",
+      "scene_sha256": "8d507e0edaf5ffab4d0ac1c25994ee7c2d7d1646b4c6a628bd282312f8380821",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.7653724590290965,
+      "frame0_clearance": {
+        "min_clearance_mm": 13.345519142850932,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_010",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        -7.3738030100673555,
+        -3.6618066053387133,
+        2.201951234700494
+      ],
+      "scene": "candidate_010.yaml",
+      "scene_sha256": "a7c13f7deebd676b7b07c979cebba67d18ff7b4cc6487ca6386717f18e8576b4",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.301412535288188,
+      "frame0_clearance": {
+        "min_clearance_mm": 12.012776000094668,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_011",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        -8.076945468309887,
+        -1.6734045989737045,
+        -1.5922500991447772
+      ],
+      "scene": "candidate_011.yaml",
+      "scene_sha256": "b85afce49ab5a036ec4b31411868aa27f524391c7466ef84e8f015acb37baef9",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.2605301051480697,
+      "frame0_clearance": {
+        "min_clearance_mm": 12.3176985229725,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_012",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        4.326764677486461,
+        1.7172729800507271,
+        3.553727090399214
+      ],
+      "scene": "candidate_012.yaml",
+      "scene_sha256": "2701124fadf5bfdead45bba9c7a32b2a072788ef79d0b085ece3631ebbd94bd4",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.3739431263499112,
+      "frame0_clearance": {
+        "min_clearance_mm": 15.646253392668669,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_013",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        -5.230628875346715,
+        -1.0369090695421557,
+        7.839754700613295
+      ],
+      "scene": "candidate_013.yaml",
+      "scene_sha256": "e75075bb9d5ae1ae30398c074fba886c223c541aa6f5e4982b3a460b0c45d0c6",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.7952290232626077,
+      "frame0_clearance": {
+        "min_clearance_mm": 15.625026771358549,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_014",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        14.413078958929,
+        10.52083011787496,
+        3.57380410658956
+      ],
+      "scene": "candidate_014.yaml",
+      "scene_sha256": "dedba700463afb7c13e517153bed4c4bda127de95a742954202c0933f2d8b0a2",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.5716084346615309,
+      "frame0_clearance": {
+        "min_clearance_mm": 2.3746088405458963,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_015",
+      "group": "frozen_seed0",
+      "design": "frozen",
+      "parameters_mm_mm_deg": [
+        10.767003390258436,
+        6.25049120560342,
+        2.6445563032930353
+      ],
+      "scene": "candidate_015.yaml",
+      "scene_sha256": "d9b35d4cc5e515ab12b4a545f66c4017c6263062fa2b5d4215d925442affe8ea",
+      "scene_source": "frozen pool, unchanged",
+      "action_cost": 0.4084236854800364,
+      "frame0_clearance": {
+        "min_clearance_mm": 7.754712280200543,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_016",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        2.764673536518288,
+        6.572945148009267,
+        3.304370761833871
+      ],
+      "scene": "candidate_016.yaml",
+      "scene_sha256": "791e90dd7095de796aab71913d78353abb5d03f2a8a25eca8923ffa19e168a4f",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.37545712620489713,
+      "frame0_clearance": {
+        "min_clearance_mm": 14.280087171268768,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_017",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        -10.425257852834887,
+        7.242846933384942,
+        4.463745723640113
+      ],
+      "scene": "candidate_017.yaml",
+      "scene_sha256": "ed916c856a6fb47091a715ff46a070def56776b32a98e28185311b958c3526a3",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.5476913176938638,
+      "frame0_clearance": {
+        "min_clearance_mm": 16.554280673188003,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_018",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        -4.295625882882281,
+        4.648944833570825,
+        3.6457239618607575
+      ],
+      "scene": "candidate_018.yaml",
+      "scene_sha256": "e98001a160a4af25c02d244f20a1de843a39ad65e5e4b2b9f58f25b9735849fc",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.39743391045606896,
+      "frame0_clearance": {
+        "min_clearance_mm": 19.430591669329395,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_019",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        2.353059973244208,
+        0.2273779305263743,
+        5.46712986612447
+      ],
+      "scene": "candidate_019.yaml",
+      "scene_sha256": "a0cee413f9644964ad4015a790071ed1db1dba8b5cbd8ed680a8534b22f3c84d",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.5498981357545328,
+      "frame0_clearance": {
+        "min_clearance_mm": 18.182252376766446,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_020",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        -5.891632696013335,
+        -1.3032795839444222,
+        -4.821193126799782
+      ],
+      "scene": "candidate_020.yaml",
+      "scene_sha256": "3708dc95f7b0defc3fa572dc984567f113cb38a9e7a4eb9836ed292c31ab65d3",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.5051684893138891,
+      "frame0_clearance": {
+        "min_clearance_mm": 14.440821879351809,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_021",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        4.7907697010770205,
+        0.3177768598532719,
+        -2.924567509650886
+      ],
+      "scene": "candidate_021.yaml",
+      "scene_sha256": "bb03f6b40f3409d682d0766a44f8a6a67158a04780eeb01a32011d67ff45a29d",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.3161308850356775,
+      "frame0_clearance": {
+        "min_clearance_mm": 15.732096753673126,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_022",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        -6.255267698854737,
+        -2.0575379249509655,
+        0.08142180518343507
+      ],
+      "scene": "candidate_022.yaml",
+      "scene_sha256": "2a7fc0c2217741127ec90f44505c1bbe24c8fc466becf5072079d0e399db5931",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.16482549192762974,
+      "frame0_clearance": {
+        "min_clearance_mm": 13.751602430482905,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_023",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        4.749984574286582,
+        7.129335634258627,
+        3.2084830456656372
+      ],
+      "scene": "candidate_023.yaml",
+      "scene_sha256": "436ec8a250e4c39e4d527ea14cb939a95c656b940d8fad52071cb1f47c197d33",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.385761904637313,
+      "frame0_clearance": {
+        "min_clearance_mm": 12.320560979260144,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_024",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        -21.689299831727748,
+        -15.112105967741382,
+        -1.7477209205516195
+      ],
+      "scene": "candidate_024.yaml",
+      "scene_sha256": "e4f11049c64ebc0d7a6eedb9d9d8ccf53c2f8262ef0172d1f92becb4b7abf4fb",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.683590670937738,
+      "frame0_clearance": {
+        "min_clearance_mm": -4.367329895758125,
+        "interpenetrating": true,
+        "particles_within_2mm": 216
+      },
+      "phase_b_plan": "excluded_pre_screen_interpenetrating_at_frame0"
+    },
+    {
+      "candidate_id": "candidate_025",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        -3.3775232926108285,
+        1.7091439799888888,
+        2.173219310225636
+      ],
+      "scene": "candidate_025.yaml",
+      "scene_sha256": "6c1a2ab4f7bf86e91cda6c43e1fcdb0921fba21592a00647287a50cdade8c2e9",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.23703237049749973,
+      "frame0_clearance": {
+        "min_clearance_mm": 18.254525861171185,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_026",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        16.942710040408386,
+        -8.89616610153825,
+        -3.7760500712699807
+      ],
+      "scene": "candidate_026.yaml",
+      "scene_sha256": "164cce8bcf731f05d4f781412d64f41a43ecb99e48f658ba33b9ddfc90d145f1",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.6094741899125641,
+      "frame0_clearance": {
+        "min_clearance_mm": 10.555190802504244,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_027",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        16.342172859938643,
+        5.173623969614775,
+        6.6306337237626165
+      ],
+      "scene": "candidate_027.yaml",
+      "scene_sha256": "e380937e2bc6689b14551b2728a50fe3fa7d798ebecca61afd9a9acc8a6bf66b",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.7894926598860251,
+      "frame0_clearance": {
+        "min_clearance_mm": 4.3189910061474315,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_028",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        -4.112050973499703,
+        -13.184601366845222,
+        1.6746474422274114
+      ],
+      "scene": "candidate_028.yaml",
+      "scene_sha256": "e297e1ecea29d98afa1087e00e1e8a0f6e0a1f253809423f8f1ba1320bc7fe9a",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.38374290001853595,
+      "frame0_clearance": {
+        "min_clearance_mm": 10.123244280086535,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_029",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        0.8721127025723803,
+        -9.818816433956593,
+        -6.832266617805622
+      ],
+      "scene": "candidate_029.yaml",
+      "scene_sha256": "4e02121f3100b58351cecd21b5bc53961ad3277f8bf7a5d11e6920ef326f2f16",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.7263124374701898,
+      "frame0_clearance": {
+        "min_clearance_mm": 17.93298697265543,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_030",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        -0.5763494378178194,
+        -7.558012984486219,
+        -0.9826996785221727
+      ],
+      "scene": "candidate_030.yaml",
+      "scene_sha256": "50bf24b7d81cb97e7fb5507b6c17e0b54926dad912dc471308728f7fd2686b3d",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.21346386913072743,
+      "frame0_clearance": {
+        "min_clearance_mm": 16.189467171624393,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_031",
+      "group": "seed1_second_group",
+      "design": "generate_actions(1,17)[1:]",
+      "parameters_mm_mm_deg": [
+        0.7638642197556347,
+        0.2846898964438857,
+        -5.0629165831431475
+      ],
+      "scene": "candidate_031.yaml",
+      "scene_sha256": "2266fe4c86673e28440afae5bd72c6f3e8fdf094a23de21f75eb72e29a8d5ce8",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.5067016664969229,
+      "frame0_clearance": {
+        "min_clearance_mm": 19.385515505574162,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_032",
+      "group": "d2_edge",
+      "design": "d2_closing_axis_plus",
+      "parameters_mm_mm_deg": [
+        15.588457268119896,
+        8.999999999999998,
+        0.0
+      ],
+      "scene": "candidate_032.yaml",
+      "scene_sha256": "9770c6875f4c18b878c5c12ddaee7af661f77efa43fbc7352838d8523adf506a",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.44999999999999996,
+      "frame0_clearance": {
+        "min_clearance_mm": 2.133602425991846,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_033",
+      "group": "d2_edge",
+      "design": "d2_closing_axis_minus",
+      "parameters_mm_mm_deg": [
+        -15.588457268119896,
+        -8.999999999999998,
+        0.0
+      ],
+      "scene": "candidate_033.yaml",
+      "scene_sha256": "f3a282914317aa9f5c55d39a27234cd829f8bb479dea66a84d50b8bfc09fa71d",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.44999999999999996,
+      "frame0_clearance": {
+        "min_clearance_mm": 2.1961788943749667,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_034",
+      "group": "d2_edge",
+      "design": "d2_width_axis_edge",
+      "parameters_mm_mm_deg": [
+        -13.999999999999998,
+        24.248711305964285,
+        0.0
+      ],
+      "scene": "candidate_034.yaml",
+      "scene_sha256": "3a2d69bcbfa02f07c9889f45bdc3b2216de398ff1e31e4752c06816a4227a2a8",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 0.7000000000000001,
+      "frame0_clearance": {
+        "min_clearance_mm": 25.528265840433555,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    },
+    {
+      "candidate_id": "candidate_035",
+      "group": "d2_edge",
+      "design": "d2_corner_yaw",
+      "parameters_mm_mm_deg": [
+        2.1243556529821443,
+        24.320508075688775,
+        10.0
+      ],
+      "scene": "candidate_035.yaml",
+      "scene_sha256": "31030ac95ea3e318d008e7ad7d6f1f1d47814f54e5cadc49997ab64e91fb6c91",
+      "scene_source": "new, built from frozen candidate_000.yaml",
+      "action_cost": 1.1715374513859982,
+      "frame0_clearance": {
+        "min_clearance_mm": 5.5944385621253145,
+        "interpenetrating": false,
+        "particles_within_2mm": 0
+      },
+      "phase_b_plan": "execute_and_predict"
+    }
+  ],
+  "candidate_count": 36,
+  "groups": {
+    "frozen_seed0": [
+      "candidate_000",
+      "candidate_001",
+      "candidate_002",
+      "candidate_003",
+      "candidate_004",
+      "candidate_005",
+      "candidate_006",
+      "candidate_007",
+      "candidate_008",
+      "candidate_009",
+      "candidate_010",
+      "candidate_011",
+      "candidate_012",
+      "candidate_013",
+      "candidate_014",
+      "candidate_015"
+    ],
+    "seed1_second_group": [
+      "candidate_016",
+      "candidate_017",
+      "candidate_018",
+      "candidate_019",
+      "candidate_020",
+      "candidate_021",
+      "candidate_022",
+      "candidate_023",
+      "candidate_024",
+      "candidate_025",
+      "candidate_026",
+      "candidate_027",
+      "candidate_028",
+      "candidate_029",
+      "candidate_030",
+      "candidate_031"
+    ],
+    "d2_edge": [
+      "candidate_032",
+      "candidate_033",
+      "candidate_034",
+      "candidate_035"
+    ]
+  },
+  "phase_b_counts": {
+    "execute_and_predict": 33,
+    "existing_execution_reuse": 2,
+    "excluded_pre_screen_interpenetrating_at_frame0": 1
+  },
+  "scope": "development pool; thresholds null; truth never used for selection; not executed"
+}
