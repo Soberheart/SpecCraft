@@ -232,7 +232,8 @@ def prepare(label, project, submit, s4=None, walltime=None):
                        nominal_reference={'evidence_dir': str(frozen_parent / 'data'), 'job': '25837718.pbs101'},
                        pilot_report=pilot_report)
     write(tools / 'request.json', request)
-    (tools / 'run_job.pbs').write_text(pbs_script(runner), encoding='utf-8', newline='\n')
+    with (tools / 'run_job.pbs').open('w', encoding='utf-8', newline='\n') as stream:  # Path.write_text(newline=) needs 3.10
+        stream.write(pbs_script(runner))
     write(tools / 'tool_manifest.json', {'files_sha256': {p.name: sha256(p) for p in sorted(tools.iterdir())}})
     syntax = subprocess.run(['bash', '-n', str(tools / 'run_job.pbs')], capture_output=True, text=True)
     if syntax.returncode:
