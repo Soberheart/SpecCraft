@@ -125,6 +125,29 @@ class AnalyzeBatchTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 az.report(out, project)
 
+    def test_s4_added_to_existing_analysis(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = layout(Path(d))
+            analysis = project / az.BATCH_DIRNAME / 'C-analysis_20261017T000000Z'
+            with unittest.mock.patch.object(az, 'TOP_K', 2), unittest.mock.patch.object(az, 'T1_GRID', (0.8,)), \
+                    unittest.mock.patch.object(az, 'T2_GRID', (0.1,)), unittest.mock.patch.object(az, 'TOLERANCES', (0.2,)):
+                az.run(analysis / 'data', project, workers=1)
+            before = sha256(analysis / 'data/report/phase_c_report.json')
+            s4 = project / az.BATCH_DIRNAME / 'B-S4_20261017T010000Z'
+            rid = 'S4_candidate_002_x_0p02'
+            write_evidence(s4 / 'data', rid, frames(0.7))
+            manifest(s4 / 'data')
+            write_json(s4 / 'tools/request.json', {'source_pool': str(project / 'records/pool'), 'runs': [
+                {'run_id': rid, 'candidate_id': 'candidate_002', 'group': 'sensitivity_S4',
+                 'action_mm_mm_deg': [0.0, 0.0, 0.0], 'tool_offset_mm': [0.02, 0.0]}]})
+            write_json(s4 / 'data/batch_report.json', {'results': {rid: {'exit_code': 0}}})
+            self.assertEqual(az.run_s4(analysis, project, workers=1), 0)
+            self.assertEqual(sha256(analysis / 'data/report/phase_c_report.json'), before)
+            out = next(analysis.glob('s4_*'))
+            block = json.loads((out / 's4_report.json').read_text(encoding='utf-8'))['C4_S4'][rid]
+            self.assertEqual(block['base'], 'candidate_002')
+            self.assertEqual(block['judgement']['status'], 'passed')
+
     def test_tampered_prediction_is_refused(self):
         with tempfile.TemporaryDirectory() as d:
             project = layout(Path(d))

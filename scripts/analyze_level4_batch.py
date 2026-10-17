@@ -50,7 +50,7 @@ QUANTILES = (0.2, 0.4, 0.5, 0.6, 0.8)
 TOLERANCES = (0.0, 1.0 / 63.0)
 TOP_K = 8
 RANDOM_GROUPS = ('frozen_seed0', 'seed1_second_group')
-EXEC_LABELS = ('B-pilot', 'B-exec-1', 'B-exec-2', 'B-exec-3', 'B-exec-4')
+EXEC_LABELS = ('B-pilot', 'B-exec-1', 'B-exec-2', 'B-exec-3', 'B-exec-4', 'B-S4')
 
 
 def utc():
@@ -228,6 +228,37 @@ def d1_block(table, groups, variant, attribute):
             'verdict': ba.d1_verdict(mean_test, rank_test, None)}
 
 
+def compare_runs(ref, a):
+    """Pre-registered S comparison: raw-particle spans, pinch neck and significant components, per frame."""
+    du = [x - y for x, y in zip(a['raw_particle_span_mm']['u'], ref['raw_particle_span_mm']['u'])]
+    dv = [x - y for x, y in zip(a['raw_particle_span_mm']['v'], ref['raw_particle_span_mm']['v'])]
+    dn = [x['width_mm'] - y['width_mm'] for x, y in zip(a['pinch_neck_4mm'], ref['pinch_neck_4mm'])
+          if x['width_mm'] is not None and y['width_mm'] is not None]
+    presence = any((x['width_mm'] is None) != (y['width_mm'] is None)
+                   for x, y in zip(a['pinch_neck_4mm'], ref['pinch_neck_4mm']))
+    comps = any(a['components'][f]['by_multiplier'][m]['significant_0p5pct'] !=
+                ref['components'][f]['by_multiplier'][m]['significant_0p5pct']
+                for f in a['components'] for m in a['components'][f]['by_multiplier'])
+    judgement = ba.sensitivity_judgement({'span_u_mm': du, 'span_v_mm': dv, 'neck_mm': dn,
+                                          'components_changed': comps or presence})
+    return judgement, presence, {'span_u_mm': du, 'span_v_mm': dv, 'neck_mm': dn}
+
+
+def s4_block(out, runs):
+    """S4: each S4_<cid>_x_0p02 run against its own unshifted base candidate (same criterion as S1)."""
+    block = {}
+    for rid in sorted(r for r in runs if r.startswith('S4_')):
+        cid = runs[rid]['candidate_id']
+        path, base = out / 'truth' / rid / 'attributes.json', out / 'truth' / cid / 'attributes.json'
+        if not (path.is_file() and base.is_file()):
+            block[rid] = {'status': 'missing_truth', 'base': cid}
+            continue
+        judgement, presence, per_frame = compare_runs(read_json(base), read_json(path))
+        block[rid] = {'base': cid, 'judgement': judgement, 'neck_presence_changed': presence,
+                      'S3a_per_frame': per_frame, 'role': 'S4 (thin-neck amplification, D-1 criterion)'}
+    return block
+
+
 def report(out, project):
     from level4.evaluate import evaluate
     from level4.selection import confusion
@@ -323,22 +354,11 @@ def report(out, project):
             if not path.is_file():
                 sens[rid] = {'status': 'not_executed'}
                 continue
-            a = read_json(path)
-            du = [x - y for x, y in zip(a['raw_particle_span_mm']['u'], ref['raw_particle_span_mm']['u'])]
-            dv = [x - y for x, y in zip(a['raw_particle_span_mm']['v'], ref['raw_particle_span_mm']['v'])]
-            dn = [x['width_mm'] - y['width_mm'] for x, y in zip(a['pinch_neck_4mm'], ref['pinch_neck_4mm'])
-                  if x['width_mm'] is not None and y['width_mm'] is not None]
-            presence = any((x['width_mm'] is None) != (y['width_mm'] is None)
-                           for x, y in zip(a['pinch_neck_4mm'], ref['pinch_neck_4mm']))
-            comps = any(a['components'][f]['by_multiplier'][m]['significant_0p5pct'] !=
-                        ref['components'][f]['by_multiplier'][m]['significant_0p5pct']
-                        for f in a['components'] for m in a['components'][f]['by_multiplier'])
-            judgement = ba.sensitivity_judgement({'span_u_mm': du, 'span_v_mm': dv, 'neck_mm': dn,
-                                                  'components_changed': comps or presence})
-            sens[rid] = {'judgement': judgement, 'neck_presence_changed': presence,
-                         'S3a_per_frame': {'span_u_mm': du, 'span_v_mm': dv, 'neck_mm': dn},
+            judgement, presence, per_frame = compare_runs(ref, read_json(path))
+            sens[rid] = {'judgement': judgement, 'neck_presence_changed': presence, 'S3a_per_frame': per_frame,
                          'role': {'S0_repeat_nominal': 'noise floor',
                                   'S2_x_0p1': 'reference (robot scale)'}.get(rid, 'D-1 criterion')}
+    sens.update(s4_block(out, runs))
     result['C4_S'] = sens
     # ---- C5 / 3x3 matrices (development exploration) --------------------------------------------
     executed = [r for r in table if r['execution'] == 'completed' and r['group'] in RANDOM_GROUPS]
@@ -428,6 +448,43 @@ def run(out, project, workers):
     return 0
 
 
+def run_s4(analysis, project, workers):
+    """Add B-S4 truth to an existing analysis (other runs stay cached) and write a separate S4 report."""
+    data = analysis / 'data'
+    if not (data / 'report' / 'phase_c_report.json').is_file():
+        raise ValueError('Not a completed Phase C analysis: %s' % analysis)
+    runs, pool, _ = discover(project)
+    s4 = [r for rid, r in runs.items() if rid.startswith('S4_')]
+    if not s4:
+        raise ValueError('No collected B-S4 runs with exit 0')
+    work = [(r, pool, data) for r in s4] + [(runs[r['candidate_id']], pool, data) for r in s4]
+    with ProcessPoolExecutor(max_workers=workers) as executor:
+        for rid, state in executor.map(truth_for_run, work):
+            print('TRUTH', rid, state, flush=True)
+    block = s4_block(data, runs)
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ')
+    target = analysis / ('s4_' + stamp)
+    target.mkdir()
+    write_json(target / 's4_report.json', {'kind': 'L4-01_phase_c_S4', 'created_utc': utc(),
+                                           'source_report_sha256': sha256(data / 'report' / 'phase_c_report.json'),
+                                           'runs': {rid: {k: runs[rid][k] for k in ('job', 'candidate_id', 'tool_offset_mm')}
+                                                    for rid in block}, 'C4_S4': block})
+    lines = []
+    for rid, s in block.items():
+        if 'judgement' in s:
+            j = s['judgement']
+            worst = {k: (None if v is None else round(v, 4)) for k, v in j['worst_abs_change_mm'].items()}
+            lines.append('S %-26s vs %s %-6s worst=%s comps_changed=%s' % (rid, s['base'], j['status'], worst,
+                                                                         j['components_changed']))
+        else:
+            lines.append('S %-26s %s' % (rid, s['status']))
+    with (target / 'summary.txt').open('x', encoding='utf-8') as stream:
+        stream.write('\n'.join(lines) + '\n')
+    print('\n'.join(lines))
+    print('S4_DIR', target)
+    return 0
+
+
 def submit(project, workers):
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     parent = project / BATCH_DIRNAME / ('C-analysis_' + stamp)
@@ -459,11 +516,17 @@ def main():
     r.add_argument('--workers', type=int, default=8)
     s = sub.add_parser('submit')
     s.add_argument('--workers', type=int, default=16)
-    for p in (r, s):
+    q = sub.add_parser('s4', help='add B-S4 to an existing C-analysis directory (latest by default)')
+    q.add_argument('--analysis', type=Path)
+    q.add_argument('--workers', type=int, default=4)
+    for p in (r, s, q):
         p.add_argument('--project', type=Path, default=PROJECT)
     args = parser.parse_args()
     if args.command == 'run':
         sys.exit(run(args.out, args.project, args.workers))
+    if args.command == 's4':
+        analysis = args.analysis or latest(args.project / BATCH_DIRNAME, 'C-analysis_*', 'data/report/phase_c_report.json')
+        sys.exit(run_s4(analysis, args.project, args.workers))
     sys.exit(submit(args.project, args.workers))
 
 
