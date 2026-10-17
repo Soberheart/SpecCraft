@@ -109,6 +109,41 @@ class PhaseBPrepareTests(unittest.TestCase):
         parent = pb.prepare('B-exec-1', self.project, submit=False)
         self.assertEqual(len(json.loads((parent / 'tools/request.json').read_text(encoding='utf-8'))['runs']), 9)
 
+    def test_s4_uses_rule_based_choice_and_offsets_the_scene(self):
+        batch = self.project / pb.BATCH_DIRNAME
+        with self.assertRaisesRegex(ValueError, 'B-exec'):
+            pb.prepare('B-S4', self.project, submit=False)
+        for label in ('B-exec-1', 'B-exec-2', 'B-exec-3', 'B-exec-4'):
+            (batch / (label + '_x/data')).mkdir(parents=True)
+            (batch / (label + '_x/data/batch_report.json')).write_text('{}', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'Phase C'):
+            pb.prepare('B-S4', self.project, submit=False)
+        (batch / 'C-analysis_x/data/report').mkdir(parents=True)
+        (batch / 'C-analysis_x/data/report/phase_c_report.json').write_text(
+            json.dumps({'S4_selection': {'chosen': ['candidate_003', 'candidate_020']}}), encoding='utf-8')
+        (self.repo / 'level4').mkdir(exist_ok=True)
+        import shutil
+        shutil.copyfile(Path(pb.__file__).resolve().parents[1] / 'level4/tool_offset.py', self.repo / 'level4/tool_offset.py')
+        (self.repo / 'level4/__init__.py').write_text('', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'differs from the rule'):
+            pb.prepare('B-S4', self.project, submit=False, s4=['candidate_003'])
+        # synthetic scenes are not YAML mappings with a grasp; give them one
+        import yaml
+        for path in ((self.project / 'records/pool/candidate_003.yaml'), (self.config / 'scenes/candidate_020.yaml')):
+            path.write_text(yaml.safe_dump({'actions': {'grasp': {'to_pos': [0.0, 0.0, 0.0]}}}), encoding='utf-8')
+        plan = json.loads((self.config / 'pool32_manifest.json').read_text(encoding='utf-8'))
+        for row in plan['candidates']:
+            if row['candidate_id'] in ('candidate_003', 'candidate_020'):
+                place = self.project / 'records/pool' if row['group'] == 'frozen_seed0' else self.config / 'scenes'
+                row['scene_sha256'] = sha(place / row['scene'])
+        (self.config / 'pool32_manifest.json').write_text(json.dumps(plan), encoding='utf-8')
+        parent = pb.prepare('B-S4', self.project, submit=False)
+        req = json.loads((parent / 'tools/request.json').read_text(encoding='utf-8'))
+        self.assertEqual([r['run_id'] for r in req['runs']], ['S4_candidate_003_x_0p02', 'S4_candidate_020_x_0p02'])
+        self.assertEqual(req['runs'][0]['tool_offset_mm'], [0.02, 0.0])
+        scene = yaml.safe_load((parent / 'tools/S4_candidate_003_x_0p02.yaml').read_text(encoding='utf-8'))
+        self.assertAlmostEqual(scene['actions']['grasp']['to_pos'][0], 1e-4)
+
     def test_tampered_frozen_scene_refused(self):
         (Path(self.project) / 'records/pool/candidate_002.yaml').write_text('changed\n', encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'candidate_002'):

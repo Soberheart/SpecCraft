@@ -161,6 +161,53 @@ def exec_gate(batch_root, label):
     return str(reports[-1])
 
 
+S4_OFFSET_MM = (0.02, 0.0)
+
+
+def s4_runs(plan, batch_root, source_pool, requested):
+    """S4 = the A7 rule's choice from the latest Phase C report, re-run with a (0.02, 0) mm tool offset."""
+    for label in ('B-exec-1', 'B-exec-2', 'B-exec-3', 'B-exec-4'):
+        if not sorted(batch_root.glob(label + '_*/data/batch_report.json')):
+            raise ValueError('B-S4 needs all B-exec reports first (missing %s)' % label)
+    reports = sorted(batch_root.glob('C-analysis_*/data/report/phase_c_report.json'))
+    if not reports:
+        raise ValueError('Run the Phase C analysis first; S4 candidates come from its pre-registered rule')
+    chosen = read(reports[-1])['S4_selection']['chosen']
+    if requested and list(requested) != chosen:
+        raise ValueError('--s4 %s differs from the rule-based choice %s' % (requested, chosen))
+    if not 1 <= len(chosen) <= 2:
+        raise ValueError('S4 rule must choose 1-2 candidates, got %s' % chosen)
+    ids = []
+    for cid in chosen:
+        base = next(r for r in plan['pool32']['candidates'] if r['candidate_id'] == cid)
+        rid = 'S4_%s_x_0p02' % cid
+        plan['runs'][rid] = {'run_id': rid, 'candidate_id': cid, 'group': 'sensitivity_S4',
+                             'action_mm_mm_deg': base['parameters_mm_mm_deg'], 'tool_offset_mm': list(S4_OFFSET_MM),
+                             'scene': rid + '.yaml', 'scene_sha256': None, 'scene_origin': 'generated_s4',
+                             'source_scene': base['scene'], 'source_scene_sha256': base['scene_sha256'],
+                             'source_origin': 'frozen_pool' if base['group'] == 'frozen_seed0' else 'repo',
+                             'phase_c_report': str(reports[-1])}
+        ids.append(rid)
+    return ids
+
+
+def write_s4_scenes(plan, tools, source_pool):
+    import yaml
+    sys.path.insert(0, str(REPO))
+    from level4.tool_offset import apply_tool_offset
+    for row in plan['runs'].values():
+        if row.get('scene_origin') != 'generated_s4':
+            continue
+        source = (source_pool if row.pop('source_origin') == 'frozen_pool' else CONFIG / 'scenes') / row.pop('source_scene')
+        if sha256(source) != row.pop('source_scene_sha256'):
+            raise ValueError('S4 source scene differs from the frozen plan: ' + row['run_id'])
+        with source.open(encoding='utf-8') as stream:
+            scene = yaml.safe_load(stream)
+        shifted = apply_tool_offset(scene, row['tool_offset_mm'], 0.2)
+        with (tools / row['scene']).open('x', encoding='utf-8') as stream:
+            yaml.safe_dump(shifted, stream, sort_keys=False, allow_unicode=True)
+
+
 def pbs_script(runner):
     return '\n'.join([
         '#!/bin/bash', 'set -euo pipefail', ': "${PROBE_PARENT:?}"',
@@ -186,7 +233,7 @@ def prepare(label, project, submit, s4=None, walltime=None):
     batch_root.mkdir(parents=True, exist_ok=True)
     pilot_report = exec_gate(batch_root, label)
     frozen_parent, frozen_request, frozen_manifest = frozen22(project)
-    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ')  # unique even for retries within a second
     parent = batch_root / ('%s_%s' % (label, stamp))
     parent.mkdir()
     if label == 'B-dyn':
@@ -206,19 +253,23 @@ def prepare(label, project, submit, s4=None, walltime=None):
                        execution_truth_read=False)
     else:
         runner, walltime = 'run_level4_batch.py', walltime or '01:00:00'
+        source_pool = Path(frozen_request['source_pool'])
+        pool_hashes = read(source_pool / 'pool.json')['input_sha256']
         if label == 'B-S4':
-            if not s4 or not 1 <= len(s4) <= 2:
-                raise ValueError('B-S4 needs 1-2 candidate ids chosen by the pre-registered rule (--s4)')
-            raise NotImplementedError('B-S4 scenes are built after B-exec review (select-s4 not yet frozen)')
+            plan['jobs']['B-S4'] = s4_runs(plan, batch_root, source_pool, s4)
         if label not in plan['jobs']:
             raise ValueError('Unknown job label: ' + label)
         tools = build_tools(parent, frozen_parent, frozen_request, frozen_manifest, runner)
-        source_pool = Path(frozen_request['source_pool'])
-        pool_hashes = read(source_pool / 'pool.json')['input_sha256']
+        if label == 'B-S4':
+            write_s4_scenes(plan, tools, source_pool)
         runs = []
         for rid in plan['jobs'][label]:
             row = dict(plan['runs'][rid])
             origin = row.pop('scene_origin')
+            if origin == 'generated_s4':
+                row['scene_sha256'] = sha256(tools / row['scene'])
+                runs.append(row)
+                continue
             source = source_pool / row['scene'] if origin == 'frozen_pool' else CONFIG / 'scenes' / row['scene']
             if sha256(source) != row['scene_sha256'] or (origin == 'frozen_pool'
                                                           and pool_hashes[row['scene']] != row['scene_sha256']):
