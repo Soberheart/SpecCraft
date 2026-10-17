@@ -1,0 +1,351 @@
+{
+ "kind": "L4-02_A3_component_definition_check",
+ "logs": {
+  "L4_c000": {
+   "r0_mm": 2.6366614189975506,
+   "frames": [
+    {
+     "frame": 0,
+     "step": 0,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       1
+      ],
+      "part_ids": [
+       0
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": null,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 30,
+     "step": 480,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       1
+      ],
+      "part_ids": [
+       0
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 2,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 52.1964168792192,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 45,
+     "step": 720,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       1
+      ],
+      "part_ids": [
+       0
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 2,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 28.19908725509299,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 49,
+     "step": 784,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       1
+      ],
+      "part_ids": [
+       0
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 21.81797484556821,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 50,
+     "step": 800,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       2
+      ],
+      "part_ids": [
+       1
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 20.269955533954207,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 54,
+     "step": 864,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       2
+      ],
+      "part_ids": [
+       1
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 14.089983944086137,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 56,
+     "step": 896,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       2
+      ],
+      "part_ids": [
+       1
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 11.251934429916178,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 57,
+     "step": 912,
+     "simulator": {
+      "components": 2,
+      "genus": [
+       1,
+       1
+      ],
+      "part_ids": [
+       2,
+       3
+      ],
+      "part_particles": [
+       2092,
+       2071
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 10.020031448649021,
+     "cross_part": {
+      "min_distance_mm": 0.5233637219520534,
+      "pairs_within_r0": 325
+     }
+    },
+    {
+     "frame": 60,
+     "step": 960,
+     "simulator": {
+      "components": 2,
+      "genus": [
+       1,
+       1
+      ],
+      "part_ids": [
+       2,
+       3
+      ],
+      "part_particles": [
+       2092,
+       2071
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 4,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 6.716169001163962,
+     "cross_part": {
+      "min_distance_mm": 0.43463059610015536,
+      "pairs_within_r0": 546
+     }
+    },
+    {
+     "frame": 62,
+     "step": 992,
+     "simulator": {
+      "components": 2,
+      "genus": [
+       1,
+       1
+      ],
+      "part_ids": [
+       2,
+       3
+      ],
+      "part_particles": [
+       2092,
+       2071
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 4,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 5.482569154220298,
+     "cross_part": {
+      "min_distance_mm": 0.43462669227229717,
+      "pairs_within_r0": 1001
+     }
+    }
+   ],
+   "source": "/sessions/rcw-0152zkjqajphjpvnmyrbvbdf/mnt/level 4/level4_handoff_pair_restore_4yh48z3y/evidence/execution/candidate_000/scenes/0000/log.pkl",
+   "frames_logged": 63
+  }
+ }
+}

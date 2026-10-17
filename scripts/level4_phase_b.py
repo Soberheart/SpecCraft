@@ -162,6 +162,22 @@ def exec_gate(batch_root, label):
 
 
 S4_OFFSET_MM = (0.02, 0.0)
+NOISE_REPEATS = {'N_candidate_000_r1': 'candidate_000', 'N_candidate_000_r2': 'candidate_000',
+                 'N_candidate_012_r1': 'candidate_012', 'N_candidate_012_r2': 'candidate_012'}
+
+
+def noise_runs(plan):
+    """L4-02 B1: zero-offset repeats of the frozen candidate_000 / candidate_012 scenes (4 new simulations)."""
+    ids = []
+    for rid, cid in NOISE_REPEATS.items():
+        base = next(r for r in plan['pool32']['candidates'] if r['candidate_id'] == cid)
+        if base['group'] != 'frozen_seed0':
+            raise ValueError('Noise repeats use frozen-pool scenes only: ' + cid)
+        plan['runs'][rid] = {'run_id': rid, 'candidate_id': cid, 'group': 'noise_repeat',
+                             'action_mm_mm_deg': base['parameters_mm_mm_deg'], 'tool_offset_mm': [0.0, 0.0],
+                             'scene': base['scene'], 'scene_sha256': base['scene_sha256'], 'scene_origin': 'frozen_pool'}
+        ids.append(rid)
+    return ids
 
 
 def s4_runs(plan, batch_root, source_pool, requested):
@@ -257,6 +273,8 @@ def prepare(label, project, submit, s4=None, walltime=None):
         pool_hashes = read(source_pool / 'pool.json')['input_sha256']
         if label == 'B-S4':
             plan['jobs']['B-S4'] = s4_runs(plan, batch_root, source_pool, s4)
+        if label == 'B-noise':
+            plan['jobs']['B-noise'] = noise_runs(plan)
         if label not in plan['jobs']:
             raise ValueError('Unknown job label: ' + label)
         tools = build_tools(parent, frozen_parent, frozen_request, frozen_manifest, runner)
@@ -282,6 +300,9 @@ def prepare(label, project, submit, s4=None, walltime=None):
                        tool_interface_contract='tool_interface_contract_v2',
                        nominal_reference={'evidence_dir': str(frozen_parent / 'data'), 'job': '25837718.pbs101'},
                        pilot_report=pilot_report)
+        if label == 'B-noise':
+            request.update(task_sheet='L4-02', l4_02_plan_document={
+                'path': 'docs/level4_l4_02_plan.md', 'sha256': sha256(REPO / 'docs/level4_l4_02_plan.md')})
     write(tools / 'request.json', request)
     with (tools / 'run_job.pbs').open('w', encoding='utf-8', newline='\n') as stream:  # Path.write_text(newline=) needs 3.10
         stream.write(pbs_script(runner))
@@ -343,7 +364,7 @@ def main():
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('plan')
     prep = sub.add_parser('prepare')
-    prep.add_argument('label', choices=('B-pilot', 'B-exec-1', 'B-exec-2', 'B-exec-3', 'B-exec-4', 'B-dyn', 'B-S4'))
+    prep.add_argument('label', choices=('B-pilot', 'B-exec-1', 'B-exec-2', 'B-exec-3', 'B-exec-4', 'B-dyn', 'B-S4', 'B-noise'))
     prep.add_argument('--submit', action='store_true')
     prep.add_argument('--s4', nargs='*')
     prep.add_argument('--walltime')

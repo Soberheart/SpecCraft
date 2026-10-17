@@ -50,7 +50,7 @@ QUANTILES = (0.2, 0.4, 0.5, 0.6, 0.8)
 TOLERANCES = (0.0, 1.0 / 63.0)
 TOP_K = 8
 RANDOM_GROUPS = ('frozen_seed0', 'seed1_second_group')
-EXEC_LABELS = ('B-pilot', 'B-exec-1', 'B-exec-2', 'B-exec-3', 'B-exec-4', 'B-S4')
+EXEC_LABELS = ('B-pilot', 'B-exec-1', 'B-exec-2', 'B-exec-3', 'B-exec-4', 'B-S4', 'B-noise')
 
 
 def utc():
@@ -485,6 +485,105 @@ def run_s4(analysis, project, workers):
     return 0
 
 
+NOISE_SETS = {'candidate_000': ('candidate_000', 'S0_repeat_nominal', 'N_candidate_000_r1', 'N_candidate_000_r2'),
+              'candidate_012': ('candidate_012', 'N_candidate_012_r1', 'N_candidate_012_r2')}
+NOISE_OFFSETS = {'candidate_000': ('S1_x_0p02', 'S1_y_0p02'), 'candidate_012': ('S4_candidate_012_x_0p02',)}
+NOISE_THICK, NOISE_THIN = 'candidate_000', 'candidate_012'
+NOISE_CLEAR_FACTOR = 2.0   # L4-02 prereg: 'clearly larger' on the thick nominal = more than 2x the repeat maximum
+
+
+def noise_floor(attributes):
+    """L4-02 B1 (pre-registered in docs/level4_l4_02_plan.md): repeat spread vs 0.02 mm offset change.
+
+    attributes: {run_id: attributes.json content}.  Returns per-candidate repeat maxima,
+    per-offset ratios and the audit's three-tier verdict.
+    """
+    import itertools
+    out = {'repeat': {}, 'offset': {}}
+    for cid, members in NOISE_SETS.items():
+        present = [m for m in members if m in attributes]
+        worst = {'span_u_mm': 0.0, 'span_v_mm': 0.0, 'neck_mm': 0.0}
+        changed = False
+        for a, b in itertools.combinations(present, 2):
+            j, presence, _ = compare_runs(attributes[a], attributes[b])
+            changed = changed or j['components_changed'] or presence
+            for k in worst:
+                v = j['worst_abs_change_mm'].get(k)
+                worst[k] = max(worst[k], v or 0.0)
+        out['repeat'][cid] = {'runs': present, 'pairs': len(present) * (len(present) - 1) // 2,
+                              'max_abs_mm': worst, 'components_changed_between_repeats': changed}
+    for cid, offsets in NOISE_OFFSETS.items():
+        rep = out['repeat'][cid]
+        for rid in offsets:
+            if rid not in attributes or cid not in attributes:
+                out['offset'][rid] = {'status': 'missing'}
+                continue
+            j, presence, _ = compare_runs(attributes[cid], attributes[rid])
+            ratios = {}
+            for k, v in j['worst_abs_change_mm'].items():
+                floor = rep['max_abs_mm'].get(k) or 0.0
+                ratios[k] = (None if v is None else (float('inf') if floor == 0 and v > 0 else (v / floor if floor else 0.0)))
+            comps = (j['components_changed'] or presence) and not rep['components_changed_between_repeats']
+            out['offset'][rid] = {'base': cid, 'offset_abs_mm': j['worst_abs_change_mm'], 'ratio_to_repeat_max': ratios,
+                                  'components_changed_beyond_repeats': comps}
+    def exceeds(rid, factor):
+        o = out['offset'].get(rid, {})
+        if 'ratio_to_repeat_max' not in o:
+            return None
+        r = o['ratio_to_repeat_max'].get('neck_mm')
+        return bool(o['components_changed_beyond_repeats'] or (r is not None and r > factor))
+    thick_clear = [exceeds(r, NOISE_CLEAR_FACTOR) for r in NOISE_OFFSETS[NOISE_THICK]]
+    thick_any = [exceeds(r, 1.0) for r in NOISE_OFFSETS[NOISE_THICK]]
+    thin_any = [exceeds(r, 1.0) for r in NOISE_OFFSETS[NOISE_THIN]]
+    if None in thick_clear + thin_any:
+        verdict = 'incomplete'
+    elif any(thick_clear):
+        verdict = 'tier3_0p02_fails_for_neck'
+    elif not any(thick_any) and not any(thin_any):
+        verdict = 'tier1_simulation_noise'
+    elif any(thin_any) or any(thick_any):
+        verdict = 'tier2_critical_sensitivity' if any(thin_any) else 'tier1_simulation_noise_marginal'
+    out['verdict'] = verdict
+    out['rules'] = {'thick': NOISE_THICK, 'thin': NOISE_THIN, 'clear_factor_thick': NOISE_CLEAR_FACTOR,
+                    'metric': 'neck_mm worst per-frame abs change; components change beyond repeats counts as exceeding'}
+    return out
+
+
+def run_noise(analysis, project, workers):
+    """Add B-noise truth to an existing analysis (others cached) and write the B1 noise-floor verdict."""
+    data = analysis / 'data'
+    runs, pool, _ = discover(project)
+    needed = sorted({m for ms in NOISE_SETS.values() for m in ms} | {o for os_ in NOISE_OFFSETS.values() for o in os_})
+    missing = [r for r in needed if r not in runs]
+    if missing:
+        raise ValueError('Runs not collected yet: %s' % missing)
+    with ProcessPoolExecutor(max_workers=workers) as executor:
+        for rid, state in executor.map(truth_for_run, [(runs[r], pool, data) for r in needed]):
+            print('TRUTH', rid, state, flush=True)
+    attributes = {r: read_json(data / 'truth' / r / 'attributes.json') for r in needed}
+    result = noise_floor(attributes)
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ')
+    target = analysis / ('noise_' + stamp)
+    target.mkdir()
+    write_json(target / 'noise_floor.json', dict(result, kind='L4-02_B1_noise_floor', created_utc=utc(),
+                                                 runs={r: runs[r]['job'] for r in needed}))
+    lines = ['B1 verdict=%s' % result['verdict']]
+    for cid, r in result['repeat'].items():
+        lines.append('REPEAT %s pairs=%d max_abs=%s comps_changed=%s' % (
+            cid, r['pairs'], {k: round(v, 4) for k, v in r['max_abs_mm'].items()}, r['components_changed_between_repeats']))
+    for rid, o in result['offset'].items():
+        if 'offset_abs_mm' in o:
+            lines.append('OFFSET %s vs %s abs=%s ratio=%s comps_beyond_repeats=%s' % (
+                rid, o['base'], {k: (None if v is None else round(v, 4)) for k, v in o['offset_abs_mm'].items()},
+                {k: (None if v is None else round(v, 2)) for k, v in o['ratio_to_repeat_max'].items()},
+                o['components_changed_beyond_repeats']))
+    with (target / 'summary.txt').open('x', encoding='utf-8') as stream:
+        stream.write('\n'.join(lines) + '\n')
+    print('\n'.join(lines))
+    print('NOISE_DIR', target)
+    return 0
+
+
 def submit(project, workers):
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     parent = project / BATCH_DIRNAME / ('C-analysis_' + stamp)
@@ -519,11 +618,17 @@ def main():
     q = sub.add_parser('s4', help='add B-S4 to an existing C-analysis directory (latest by default)')
     q.add_argument('--analysis', type=Path)
     q.add_argument('--workers', type=int, default=4)
-    for p in (r, s, q):
+    n = sub.add_parser('noise', help='L4-02 B1: add B-noise to an existing C-analysis directory')
+    n.add_argument('--analysis', type=Path)
+    n.add_argument('--workers', type=int, default=4)
+    for p in (r, s, q, n):
         p.add_argument('--project', type=Path, default=PROJECT)
     args = parser.parse_args()
     if args.command == 'run':
         sys.exit(run(args.out, args.project, args.workers))
+    if args.command == 'noise':
+        analysis = args.analysis or latest(args.project / BATCH_DIRNAME, 'C-analysis_*', 'data/report/phase_c_report.json')
+        sys.exit(run_noise(analysis, args.project, args.workers))
     if args.command == 's4':
         analysis = args.analysis or latest(args.project / BATCH_DIRNAME, 'C-analysis_*', 'data/report/phase_c_report.json')
         sys.exit(run_s4(analysis, args.project, args.workers))

@@ -1,0 +1,351 @@
+{
+ "kind": "L4-02_A3_component_definition_check",
+ "logs": {
+  "L3_scene0000": {
+   "r0_mm": 2.6367489258186656,
+   "frames": [
+    {
+     "frame": 0,
+     "step": 0,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       1
+      ],
+      "part_ids": [
+       0
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": null,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 30,
+     "step": 480,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       1
+      ],
+      "part_ids": [
+       0
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 2,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 52.15713548335836,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 45,
+     "step": 720,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       1
+      ],
+      "part_ids": [
+       0
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 2,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 28.333004317952167,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 49,
+     "step": 784,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       1
+      ],
+      "part_ids": [
+       0
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 21.89917182542967,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 50,
+     "step": 800,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       2
+      ],
+      "part_ids": [
+       1
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 20.331386550253917,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 54,
+     "step": 864,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       2
+      ],
+      "part_ids": [
+       1
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 14.181873201499867,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 56,
+     "step": 896,
+     "simulator": {
+      "components": 1,
+      "genus": [
+       2
+      ],
+      "part_ids": [
+       1
+      ],
+      "part_particles": [
+       4163
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 11.315326536933773,
+     "cross_part": {
+      "min_distance_mm": null,
+      "pairs_within_r0": null
+     }
+    },
+    {
+     "frame": 57,
+     "step": 912,
+     "simulator": {
+      "components": 2,
+      "genus": [
+       1,
+       1
+      ],
+      "part_ids": [
+       2,
+       3
+      ],
+      "part_particles": [
+       2091,
+       2072
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 3,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 10.026649935780352,
+     "cross_part": {
+      "min_distance_mm": 0.49384972065518173,
+      "pairs_within_r0": 336
+     }
+    },
+    {
+     "frame": 60,
+     "step": 960,
+     "simulator": {
+      "components": 2,
+      "genus": [
+       1,
+       1
+      ],
+      "part_ids": [
+       2,
+       3
+      ],
+      "part_particles": [
+       2091,
+       2072
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 4,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 6.7736201913398375,
+     "cross_part": {
+      "min_distance_mm": 0.4666546062429709,
+      "pairs_within_r0": 541
+     }
+    },
+    {
+     "frame": 62,
+     "step": 992,
+     "simulator": {
+      "components": 2,
+      "genus": [
+       1,
+       1
+      ],
+      "part_ids": [
+       2,
+       3
+      ],
+      "part_particles": [
+       2091,
+       2072
+      ]
+     },
+     "l4_components_by_multiplier": {
+      "1.0": 4,
+      "1.25": 2,
+      "1.5": 2,
+      "2.0": 1
+     },
+     "l4_significant_0p5pct_by_multiplier": {
+      "1.0": 1,
+      "1.25": 1,
+      "1.5": 1,
+      "2.0": 1
+     },
+     "pinch_neck_mm": 5.437722216615491,
+     "cross_part": {
+      "min_distance_mm": 0.4666482732525737,
+      "pairs_within_r0": 995
+     }
+    }
+   ],
+   "source": "/sessions/rcw-0152zkjqajphjpvnmyrbvbdf/mnt/level 4/nscc_core_20261012_e418165b7cbc4cc8ad1f776a9b257008/core_materials/files/source_scene/log.pkl",
+   "frames_logged": 63
+  }
+ }
+}
